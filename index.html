@@ -1,174 +1,379 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>[Your Team Name] | Portfolio</title>
-
-    <link rel="stylesheet" href="dist/reset.css">
-    <link rel="stylesheet" href="dist/reveal.css">
-    <link rel="stylesheet" href="dist/theme/black.css" id="theme">
-
-    <link rel="stylesheet" href="plugin/highlight/monokai.css">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
     <style>
+        /* CSS Variables for Easy Theming */
         :root {
+            --bg-color: #1a1a1a;
+            --primary-color: #2a2a2a;
             --secondary-color: #00aaff;
+            --text-color: #e0e0e0;
+            --text-muted: #888888;
+            --card-bg: #252525;
         }
 
-        /* Custom Fixed Header for Navigation */
-        .site-header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            padding: 20px 40px;
+        /* Basic Reset & Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: auto;
+            padding: 0 20px;
+            overflow: hidden;
+        }
+
+        section {
+            padding: 60px 0;
+        }
+
+        h1, h2, h3 {
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 2.5rem;
+        }
+
+        /* Header & Navigation */
+        .navbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            background-color: rgba(26, 26, 26, 0.8);
+            backdrop-filter: blur(10px);
             z-index: 1000;
-            background-color: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(5px);
         }
-
-        .site-header .logo {
+        
+        .navbar .logo {
             font-size: 1.5rem;
-            font-weight: bold;
+            font-weight: 700;
             color: white;
             text-decoration: none;
         }
 
-        .site-header .nav-links a {
-            color: white;
+        .navbar ul {
+            display: flex;
+            list-style: none;
+        }
+
+        .navbar ul li a {
+            padding: 0 15px;
             text-decoration: none;
-            margin-left: 20px;
+            color: var(--text-color);
             font-weight: 600;
             transition: color 0.3s ease;
         }
-        
-        .site-header .nav-links a:hover {
+
+        .navbar ul li a:hover {
             color: var(--secondary-color);
         }
 
-        /* Style each section to feel like a full page */
-        .reveal .slides section {
+        /* Hamburger Menu for Mobile */
+        .hamburger {
+            display: none;
+            cursor: pointer;
+            font-size: 1.8rem;
+        }
+
+
+        /* Hero Section */
+        #hero {
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 100vh; /* Make each slide take full viewport height */
+            height: 100vh;
+            text-align: center;
         }
         
-        /* Card styles from previous template */
+        #hero h1 {
+            font-size: 4rem;
+        }
+
+        #hero p {
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto 30px auto;
+            color: var(--text-muted);
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: var(--secondary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+
+        .cta-button:hover {
+            background-color: #0088cc;
+        }
+
+        /* Team & Projects Section: Card Layout */
         .grid {
             display: flex;
             flex-wrap: wrap;
             gap: 20px;
             justify-content: center;
-            margin-top: 40px;
         }
+
         .card {
-            background: rgba(40, 40, 40, 0.8);
+            background: var(--card-bg);
             border-radius: 10px;
             padding: 20px;
             width: 300px;
             text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
         .card img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 15px;
+            border: 3px solid var(--secondary-color);
+        }
+        
+        .project-card img {
             width: 100%;
             height: 180px;
-            object-fit: cover;
             border-radius: 5px;
             margin-bottom: 15px;
+            border: none;
         }
-        .cta-button {
-             display: inline-block;
-             padding: 12px 24px;
-             margin-top: 20px;
-             background-color: var(--secondary-color);
-             color: white;
-             text-decoration: none;
-             border-radius: 5px;
-             font-weight: 600;
+
+        .card h3 {
+            font-size: 1.2rem;
         }
+
+        .card p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+        
+        .social-links a {
+            color: var(--text-muted);
+            margin: 0 10px;
+            font-size: 1.2rem;
+            transition: color 0.3s ease;
+        }
+
+        .social-links a:hover {
+            color: var(--secondary-color);
+        }
+
+        /* Skills Section */
+        .skills-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+        }
+        .skill {
+            background: var(--card-bg);
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: 600;
+        }
+
+        /* Contact Section */
+        #contact {
+            text-align: center;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 20px 0;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .navbar ul {
+                display: none;
+                flex-direction: column;
+                position: absolute;
+                top: 60px;
+                left: 0;
+                width: 100%;
+                background-color: var(--primary-color);
+                text-align: center;
+            }
+
+            .navbar ul.nav-active {
+                display: flex;
+            }
+            
+            .navbar ul li {
+                padding: 15px 0;
+            }
+
+            .hamburger {
+                display: block;
+            }
+            
+            #hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            h2 {
+                font-size: 2rem;
+            }
+        }
+
     </style>
 </head>
 <body>
 
-    <header class="site-header">
-        <a href="#" class="logo" data-slide="0">[Your Team Name]</a>
-        <nav class="nav-links">
-            <a href="#" data-slide="1">Our Work</a>
-            <a href="#" data-slide="2">Our Skills</a>
-            <a href="#" data-slide="3">Contact</a>
-        </nav>
+    <header class="navbar">
+        <div class="container">
+            <a href="#hero" class="logo">[Your Team Name]</a>
+            <ul class="nav-links">
+                <li><a href="#team">Our Team</a></li>
+                <li><a href="#projects">Our Work</a></li>
+                <li><a href="#skills">Our Skills</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <div class="hamburger"><i class="fas fa-bars"></i></div>
+        </div>
     </header>
 
-    <div class="reveal">
-        <div class="slides">
-            <section>
-                
-                <section id="hero">
-                    <h1>[A Catchy Tagline for Your Team]</h1>
-                    <p class="fragment">[Brief, impactful mission statement.]</p>
-                </section>
+    <main>
+        <section id="hero">
+            <div class="container">
+                <h1>[A Catchy Tagline for Your Team]</h1>
+                <p>[Brief, impactful mission statement about what your team does, your values, or your goals. Keep it concise.]</p>
+                <a href="#contact" class="cta-button">Get In Touch</a>
+            </div>
+        </section>
 
-                <section id="projects">
-                    <h2>Our Work</h2>
-                    <div class="grid">
-                        <div class="card fragment">
-                            <img src="images/[project1-screenshot.jpg]" alt="[Project 1 Title]">
-                            <h3>[Project 1 Title]</h3>
-                            <a href="[Live URL]" class="cta-button" target="_blank">View Project</a>
-                        </div>
-                        <div class="card fragment">
-                            <img src="images/[project2-screenshot.jpg]" alt="[Project 2 Title]">
-                            <h3>[Project 2 Title]</h3>
-                            <a href="[Live URL]" class="cta-button" target="_blank">View Project</a>
+        <section id="team">
+            <div class="container">
+                <h2>Our Team</h2>
+                <div class="grid">
+                    <div class="card">
+                        <img src="images/[member1-photo.jpg]" alt="[Team Member 1 Name]">
+                        <h3>[Team Member 1 Name]</h3>
+                        <p>[Role, e.g., Lead Developer, UI/UX Designer]</p>
+                        <div class="social-links">
+                            <a href="[GitHub URL]" target="_blank"><i class="fab fa-github"></i></a>
+                            <a href="[LinkedIn URL]" target="_blank"><i class="fab fa-linkedin"></i></a>
+                            <a href="[Twitter/X URL]" target="_blank"><i class="fab fa-twitter"></i></a>
                         </div>
                     </div>
-                </section>
+                    <div class="card">
+                        <img src="images/[member2-photo.jpg]" alt="[Team Member 2 Name]">
+                        <h3>[Team Member 2 Name]</h3>
+                        <p>[Role, e.g., Project Manager, Data Scientist]</p>
+                        <div class="social-links">
+                            <a href="[GitHub URL]" target="_blank"><i class="fab fa-github"></i></a>
+                            <a href="[LinkedIn URL]" target="_blank"><i class="fab fa-linkedin"></i></a>
+                        </div>
+                    </div>
+                    </div>
+            </div>
+        </section>
 
-                <section id="skills">
-                    <h2>Our Skills</h2>
-                    <p>We believe in the elegant formula for success:</p>
-                    <p style="font-size: 2rem; margin: 20px 0;" class="fragment">
-                        $$(Idea + Design) \times Development^{Passion} = \infty$$
-                    </p>
-                    <p class="fragment">From simple websites to complex data analysis.</p>
-                </section>
-                
-                <section id="contact">
-                    <h2>Get In Touch</h2>
-                     <p>Let's build something amazing together.</p>
-                    <a href="mailto:[your.team.email@example.com]" class="cta-button">Email Us</a>
-                </section>
+        <section id="projects">
+            <div class="container">
+                <h2>Our Work</h2>
+                <div class="grid">
+                    <div class="card project-card">
+                        <img src="images/[project1-screenshot.jpg]" alt="[Project 1 Title]">
+                        <h3>[Project 1 Title]</h3>
+                        <p>[Short description of the project, the tech used, and its purpose.]</p>
+                        <a href="[Live Project URL]" class="cta-button" target="_blank">View Project</a>
+                    </div>
+                     <div class="card project-card">
+                        <img src="images/[project2-screenshot.jpg]" alt="[Project 2 Title]">
+                        <h3>[Project 2 Title]</h3>
+                        <p>[Short description of the project, the tech used, and its purpose.]</p>
+                        <a href="[GitHub Repo URL]" class="cta-button" target="_blank">View Code</a>
+                    </div>
+                    </div>
+            </div>
+        </section>
 
-            </section>
+        <section id="skills">
+            <div class="container">
+                <h2>Our Skills</h2>
+                <div class="skills-grid">
+                    <div class="skill">HTML5 & CSS3</div>
+                    <div class="skill">JavaScript (ES6+)</div>
+                    <div class="skill">React</div>
+                    <div class="skill">Node.js</div>
+                    <div class="skill">Python</div>
+                    <div class="skill">Data Analysis</div>
+                    <div class="skill">UI/UX Design</div>
+                    <div class="skill">Project Management</div>
+                    </div>
+            </div>
+        </section>
+
+        <section id="contact">
+            <div class="container">
+                <h2>Let's Build Something Together</h2>
+                <p>[A short call to action inviting collaboration or inquiries.]</p>
+                <a href="mailto:[your.team.email@example.com]" class="cta-button">Email Us</a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 [Your Team Name]. All Rights Reserved.</p>
         </div>
-    </div>
+    </footer>
 
-    <script src="dist/reveal.js"></script>
-    <script src="plugin/notes/notes.js"></script>
-    <script src="plugin/highlight/highlight.js"></script>
-    <script src="plugin/math/math.js"></script>
     <script>
-        Reveal.initialize({
-            hash: true,
-            plugins: [ RevealHighlight, RevealNotes, RevealMath.KaTeX ]
-        });
+        const hamburger = document.querySelector('.hamburger');
+        const navLinks = document.querySelector('.nav-links');
 
-        // --- The JavaScript "Magic" for Custom Navigation ---
-        const navLinks = document.querySelectorAll('.site-header a[data-slide]');
-
-        navLinks.forEach(link => {
-            link.addEventListener('click', event => {
-                event.preventDefault();
-                const slideIndex = event.currentTarget.getAttribute('data-slide');
-                // Reveal.slide(horizontal, vertical, fragment)
-                Reveal.slide(0, parseInt(slideIndex));
-            });
+        hamburger.addEventListener('click', () => {
+            navLinks.classList.toggle('nav-active');
         });
     </script>
 </body>
