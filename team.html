@@ -11,6 +11,96 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <style>
+        /* --- Additional Styles for Clickable Cards & Modals --- */
+        .team-member-card {
+            cursor: pointer; /* Indicates the card is clickable */
+        }
+
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 800px;
+            position: relative;
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-close {
+            color: #aaa;
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .modal-close:hover,
+        .modal-close:focus {
+            color: black;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+
+        .modal-header img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin-right: 20px;
+        }
+        
+        .modal-header h2 {
+            margin: 0;
+        }
+        .modal-header .role {
+             color: var(--text-light);
+        }
+
+        .modal-body h3 {
+            color: var(--primary-color);
+            margin-top: 20px;
+            margin-bottom: 10px;
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 5px;
+        }
+
+        .modal-body ul {
+            list-style-position: inside;
+            padding-left: 10px;
+        }
+
+        body.modal-open {
+            overflow: hidden; /* Prevents background scrolling when modal is open */
+        }
+
+        @keyframes fadeIn {
+            from {opacity: 0; transform: scale(0.95);}
+            to {opacity: 1; transform: scale(1);}
+        }
+    </style>
 </head>
 <body>
 
@@ -38,39 +128,84 @@
         <!-- Team Members Section -->
         <section id="team-members">
             <div class="container">
-                <p class="section-subtitle">The dedicated scientists, engineers, and staff who make our research possible. We are a diverse group of experts passionate about science and discovery.</p>
+                <h2 class="section-title">Beamline Scientists</h2>
+                <p class="section-subtitle">Experts in instrumentation, optics, and experimental techniques. Click on any member to view their full details.</p>
                 <div class="grid">
-                    <!-- Team Member Card 1 -->
-                    <div class="card team-member-card">
-                        <img src="https://placehold.co/180x180/005f9e/FFFFFF?text=Photo" alt="[Team Lead Name]">
-                        <div class="card-content">
-                            <h3>[Dr. Team Lead Name]</h3>
-                            <p class="role">[Head of Beamline Division]</p>
-                            <p>[A brief bio about their expertise, research interests, and role in the team.]</p>
-                            <a href="mailto:[email@slri.or.th]" class="email-icon" title="Email"><i class="fas fa-envelope"></i></a>
-                        </div>
+                    <!-- Card triggers the modal -->
+                    <div class="card team-member-card" data-modal-target="#modal-bs1">
+                        <img src="https://api.dicebear.com/8.x/notionists/svg?seed=bs1" alt="Avatar">
+                        <div class="card-content"><h3>Dr. [Name] [Surname]</h3><p class="role">X-ray Absorption Spectroscopy</p></div>
                     </div>
-                    <!-- Team Member Card 2 -->
-                    <div class="card team-member-card">
-                        <img src="https://placehold.co/180x180/005f9e/FFFFFF?text=Photo" alt="[Scientist Name]">
-                        <div class="card-content">
-                            <h3>[Dr. Scientist Name]</h3>
-                            <p class="role">[Beamline Scientist]</p>
-                            <p>[A brief bio about their expertise, research interests, and role in the team.]</p>
-                            <a href="mailto:[email@slri.or.th]" class="email-icon" title="Email"><i class="fas fa-envelope"></i></a>
-                        </div>
+                    <div class="card team-member-card" data-modal-target="#modal-bs2">
+                        <img src="https://api.dicebear.com/8.x/notionists/svg?seed=bs2" alt="Avatar">
+                        <div class="card-content"><h3>Dr. [Name] [Surname]</h3><p class="role">Macromolecular Crystallography</p></div>
                     </div>
-                    <!-- Team Member Card 3 -->
-                    <div class="card team-member-card">
-                        <img src="https://placehold.co/180x180/005f9e/FFFFFF?text=Photo" alt="[Engineer Name]">
-                        <div class="card-content">
-                            <h3>[Mr. Engineer Name]</h3>
-                            <p class="role">[Beamline Engineer]</p>
-                            <p>[A brief bio about their expertise, research interests, and role in the team.]</p>
-                            <a href="mailto:[email@slri.or.th]" class="email-icon" title="Email"><i class="fas fa-envelope"></i></a>
-                        </div>
+                    <div class="card team-member-card" data-modal-target="#modal-bs3">
+                        <img src="https://api.dicebear.com/8.x/notionists/svg?seed=bs3" alt="Avatar">
+                        <div class="card-content"><h3>Dr. [Name] [Surname]</h3><p class="role">Photoelectron Spectroscopy</p></div>
                     </div>
-                    <!-- Add as many team member cards as you need -->
+                    <div class="card team-member-card" data-modal-target="#modal-bs4">
+                        <img src="https://api.dicebear.com/8.x/notionists/svg?seed=bs4" alt="Avatar">
+                        <div class="card-content"><h3>Dr. [Name] [Surname]</h3><p class="role">X-ray Tomography</p></div>
+                    </div>
+                    <div class="card team-member-card" data-modal-target="#modal-bs5">
+                        <img src="https://api.dicebear.com/8.x/notionists/svg?seed=bs5" alt="Avatar">
+                        <div class="card-content"><h3>Dr. [Name] [Surname]</h3><p class="role">Infrared Microspectroscopy</p></div>
+                    </div>
+                </div>
+
+                <hr style="margin: 60px 0; border: 1px solid #eee;">
+
+                <h2 class="section-title">Laboratory Scientists</h2>
+                <p class="section-subtitle">Specialists in diverse scientific fields who support users and conduct cutting-edge in-house research.</p>
+                <div class="grid">
+                    <div class="card team-member-card" data-modal-target="#modal-ls1">
+                        <img src="https://api.dicebear.com/8.x/notionists/svg?seed=ls1" alt="Avatar">
+                        <div class="card-content"><h3>[Name] [Surname]</h3><p class="role">Catalysis & Materials Chemistry</p></div>
+                    </div>
+                    <div class="card team-member-card" data-modal-target="#modal-ls2">
+                        <img src="https://api.dicebear.com/8.x/notionists/svg?seed=ls2" alt="Avatar">
+                        <div class="card-content"><h3>[Name] [Surname]</h3><p class="role">Structural Biology</p></div>
+                    </div>
+                    <div class="card team-member-card" data-modal-target="#modal-ls3">
+                        <img src="https://api.dicebear.com/8.x/notionists/svg?seed=ls3" alt="Avatar">
+                        <div class="card-content"><h3>[Name] [Surname]</h3><p class="role">Environmental Science</p></div>
+                    </div>
+                    <div class="card team-member-card" data-modal-target="#modal-ls4">
+                        <img src="https://api.dicebear.com/8.x/notionists/svg?seed=ls4" alt="Avatar">
+                        <div class="card-content"><h3>[Name] [Surname]</h3><p class="role">Polymer Science</p></div>
+                    </div>
+                    <div class="card team-member-card" data-modal-target="#modal-ls5">
+                        <img src="https://api.dicebear.com/8.x/notionists/svg?seed=ls5" alt="Avatar">
+                        <div class="card-content"><h3>[Name] [Surname]</h3><p class="role">Nanomaterials</p></div>
+                    </div>
+                </div>
+
+                <hr style="margin: 60px 0; border: 1px solid #eee;">
+
+                <h2 class="section-title">Engineers</h2>
+                <p class="section-subtitle">The technical backbone of our division, responsible for the design, construction, and maintenance of our complex instruments.</p>
+                <div class="grid">
+                    <div class="card team-member-card" data-modal-target="#modal-en1">
+                        <img src="https://api.dicebear.com/8.x/notionists/svg?seed=en1" alt="Avatar">
+                        <div class="card-content"><h3>[Name] [Surname]</h3><p class="role">Mechanical Engineer</p></div>
+                    </div>
+                    <div class="card team-member-card" data-modal-target="#modal-en2">
+                        <img src="https://api.dicebear.com/8.x/notionists/svg?seed=en2" alt="Avatar">
+                        <div class="card-content"><h3>[Name] [Surname]</h3><p class="role">Control Systems Engineer</p></div>
+                    </div>
+                    <div class="card team-member-card" data-modal-target="#modal-en3">
+                        <img src="https://api.dicebear.com/8.x/notionists/svg?seed=en3" alt="Avatar">
+                        <div class="card-content"><h3>[Name] [Surname]</h3><p class="role">Vacuum Engineer</p></div>
+                    </div>
+                    <div class="card team-member-card" data-modal-target="#modal-en4">
+                        <img src="https://api.dicebear.com/8.x/notionists/svg?seed=en4" alt="Avatar">
+                        <div class="card-content"><h3>[Name] [Surname]</h3><p class="role">Software Engineer</p></div>
+                    </div>
+                    <div class="card team-member-card" data-modal-target="#modal-en5">
+                        <img src="https://api.dicebear.com/8.x/notionists/svg?seed=en5" alt="Avatar">
+                        <div class="card-content"><h3>[Name] [Surname]</h3><p class="role">Electronics Engineer</p></div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -82,6 +217,137 @@
             <p>&copy; 2025 Synchrotron Light Research Institute (Public Organization). All Rights Reserved.</p>
         </div>
     </footer>
+
+    <!-- MODALS SECTION: All pop-up windows are defined here -->
+    
+    <!-- Modal for Beamline Scientist 1 -->
+    <div class="modal" id="modal-bs1">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <div class="modal-header">
+                <img src="https://api.dicebear.com/8.x/notionists/svg?seed=bs1" alt="Avatar">
+                <div>
+                    <h2>Dr. [Name] [Surname]</h2>
+                    <p class="role">Beamline Scientist (X-ray Absorption Spectroscopy)</p>
+                </div>
+            </div>
+            <div class="modal-body">
+                <h3>Research Interests</h3>
+                <p>[Template: This scientist's research focuses on utilizing XAS to study the electronic and local atomic structure of materials for energy storage, such as batteries and supercapacitors. They are particularly interested in in-situ and operando measurements to understand dynamic processes.]</p>
+                <h3>Education</h3>
+                <ul>
+                    <li>Ph.D. in [Field], [University, Country]</li>
+                    <li>M.Sc. in [Field], [University, Country]</li>
+                </ul>
+                <h3>Selected Publications</h3>
+                <ul>
+                    <li>[[Surname], N. et al. (Year). Title of a recent paper. Journal Name.]</li>
+                </ul>
+                <h3>Contact</h3>
+                <p>Email: <a href="mailto:[email]@slri.or.th">[email]@slri.or.th</a><br>Office: [Building X, Room Y]</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal for Laboratory Scientist 1 -->
+    <div class="modal" id="modal-ls1">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <div class="modal-header">
+                <img src="https://api.dicebear.com/8.x/notionists/svg?seed=ls1" alt="Avatar">
+                <div>
+                    <h2>[Name] [Surname]</h2>
+                    <p class="role">Laboratory Scientist (Catalysis & Materials Chemistry)</p>
+                </div>
+            </div>
+            <div class="modal-body">
+                <h3>Research Interests</h3>
+                <p>[Template: This scientist's work involves the synthesis and characterization of novel catalytic materials for green chemistry applications, including biomass conversion and CO2 reduction. They use a combination of synchrotron techniques to probe reaction mechanisms.]</p>
+                <h3>Education</h3>
+                <ul>
+                    <li>M.Sc. in [Field], [University, Country]</li>
+                    <li>B.Sc. in [Field], [University, Country]</li>
+                </ul>
+                <h3>Selected Publications</h3>
+                <ul>
+                    <li>[[Surname], N. et al. (Year). Title of a recent paper. Journal Name.]</li>
+                </ul>
+                <h3>Contact</h3>
+                <p>Email: <a href="mailto:[email]@slri.or.th">[email]@slri.or.th</a><br>Office: [Building A, Room B]</p>
+            </div>
+    </div>
+
+    <!-- Modal for Engineer 1 -->
+    <div class="modal" id="modal-en1">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <div class="modal-header">
+                <img src="https://api.dicebear.com/8.x/notionists/svg?seed=en1" alt="Avatar">
+                <div>
+                    <h2>[Name] [Surname]</h2>
+                    <p class="role">Mechanical Engineer</p>
+                </div>
+            </div>
+            <div class="modal-body">
+                <h3>Expertise</h3>
+                <p>[Template: This engineer specializes in the design, simulation (using tools like ANSYS), and fabrication of high-precision mechanical components for ultra-high vacuum environments. Their work is crucial for beamline optics and sample manipulation systems.]</p>
+                <h3>Education</h3>
+                <ul>
+                    <li>M.Eng. in [Field], [University, Country]</li>
+                    <li>B.Eng. in [Field], [University, Country]</li>
+                </ul>
+                <h3>Contact</h3>
+                <p>Email: <a href="mailto:[email]@slri.or.th">[email]@slri.or.th</a><br>Office: [Building C, Room D]</p>
+            </div>
+    </div>
+
+    <!-- NOTE: For brevity, only 3 out of 15 modals are fully written out. -->
+    <!-- You would copy the structure above and change the id, seed, and content for the remaining 12 team members. -->
+    <!-- e.g., id="modal-bs2", seed="bs2", etc. -->
+
+
+    <!-- JavaScript for Modal Functionality -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const openModalTriggers = document.querySelectorAll('[data-modal-target]');
+            const closeModalTriggers = document.querySelectorAll('.modal-close');
+            
+            openModalTriggers.forEach(trigger => {
+                trigger.addEventListener('click', () => {
+                    const modal = document.querySelector(trigger.dataset.modalTarget);
+                    openModal(modal);
+                });
+            });
+
+            function openModal(modal) {
+                if (modal == null) return;
+                modal.style.display = 'block';
+                document.body.classList.add('modal-open');
+            }
+
+            function closeModal(modal) {
+                if (modal == null) return;
+                modal.style.display = 'none';
+                document.body.classList.remove('modal-open');
+            }
+            
+            // Add closing functionality to all close buttons
+            closeModalTriggers.forEach(button => {
+                button.addEventListener('click', () => {
+                    const modal = button.closest('.modal');
+                    closeModal(modal);
+                });
+            });
+
+            // Close modal if user clicks on the overlay
+            window.addEventListener('click', (event) => {
+                const openModal = document.querySelector('.modal[style*="display: block"]');
+                if (event.target === openModal) {
+                    closeModal(openModal);
+                }
+            });
+        });
+    </script>
 
 </body>
 </html>
