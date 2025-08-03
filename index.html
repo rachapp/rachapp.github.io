@@ -1,80 +1,175 @@
 <!doctype html>
-<html>
-	<head>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-		<title>My Awesome Presentation</title>
+    <title>[Your Team Name] | Portfolio</title>
 
-		<link rel="stylesheet" href="dist/reset.css">
-		<link rel="stylesheet" href="dist/reveal.css">
-		<link rel="stylesheet" href="dist/theme/black.css">
+    <link rel="stylesheet" href="dist/reset.css">
+    <link rel="stylesheet" href="dist/reveal.css">
+    <link rel="stylesheet" href="dist/theme/black.css" id="theme">
 
-		<link rel="stylesheet" href="plugin/highlight/monokai.css">
-	</head>
-	<body>
-		<div class="reveal">
-			<div class="slides">
-				
-				<section>
-					<h2>My First Interactive Presentation</h2>
-					<p>Live on GitHub Pages!</p>
-					<p><small>Created by [Your Name]</small></p>
-				</section>
+    <link rel="stylesheet" href="plugin/highlight/monokai.css">
 
-				<section>
-					<h3>What We'll Cover</h3>
-					<ul>
-						<li class="fragment">What is reveal.js?</li>
-						<li class="fragment">How to use Git and GitHub Pages</li>
-						<li class="fragment">Some cool features</li>
-						<li class="fragment">Next Steps</li>
-					</ul>
-					<aside class="notes">
-						These are my speaker notes. Press the 'S' key to see them in a separate window!
-					</aside>
-				</section>
+    <style>
+        :root {
+            --secondary-color: #00aaff;
+        }
 
-				<section>
-					<h3>Code Syntax Highlighting</h3>
-					<p>Git commands we used:</p>
-					<pre><code data-line-numbers="2-4|5">
-						# Clone the repo first
-						git clone <url>
-						git add .
-						git commit -m "My message"
-						git push
-					</code></pre>
-				</section>
+        /* Custom Fixed Header for Navigation */
+        .site-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
 
-				<section>
-					<h3>Supports Math</h3>
-					<p>You can write beautiful equations using LaTeX.</p>
-					<p>The quadratic formula is $x = {-b \pm \sqrt{b^2-4ac} \over 2a}$.</p>
-					<p>Einstein's famous equation: $E=mc^2$.</p>
-				</section>
+        .site-header .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+        }
 
-				<section>
-					<h2>Thank You!</h2>
-					<p>Questions?</p>
-					<p>Find this presentation at your-username.github.io</p>
-				</section>
+        .site-header .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+        
+        .site-header .nav-links a:hover {
+            color: var(--secondary-color);
+        }
 
-			</div>
-		</div>
+        /* Style each section to feel like a full page */
+        .reveal .slides section {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; /* Make each slide take full viewport height */
+        }
+        
+        /* Card styles from previous template */
+        .grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 40px;
+        }
+        .card {
+            background: rgba(40, 40, 40, 0.8);
+            border-radius: 10px;
+            padding: 20px;
+            width: 300px;
+            text-align: center;
+        }
+        .card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        .cta-button {
+             display: inline-block;
+             padding: 12px 24px;
+             margin-top: 20px;
+             background-color: var(--secondary-color);
+             color: white;
+             text-decoration: none;
+             border-radius: 5px;
+             font-weight: 600;
+        }
+    </style>
+</head>
+<body>
 
-		<script src="dist/reveal.js"></script>
-		<script src="plugin/notes/notes.js"></script>
-		<script src="plugin/highlight/highlight.js"></script>
-		<script src="plugin/math/math.js"></script>
-		<script>
-			// More info about config & dependencies:
-			// https://revealjs.com/config/
-			Reveal.initialize({
-				hash: true,
-				// Enable plugins
-				plugins: [ RevealHighlight, RevealNotes, RevealMath.KaTeX ]
-			});
-		</script>
-	</body>
+    <header class="site-header">
+        <a href="#" class="logo" data-slide="0">[Your Team Name]</a>
+        <nav class="nav-links">
+            <a href="#" data-slide="1">Our Work</a>
+            <a href="#" data-slide="2">Our Skills</a>
+            <a href="#" data-slide="3">Contact</a>
+        </nav>
+    </header>
+
+    <div class="reveal">
+        <div class="slides">
+            <section>
+                
+                <section id="hero">
+                    <h1>[A Catchy Tagline for Your Team]</h1>
+                    <p class="fragment">[Brief, impactful mission statement.]</p>
+                </section>
+
+                <section id="projects">
+                    <h2>Our Work</h2>
+                    <div class="grid">
+                        <div class="card fragment">
+                            <img src="images/[project1-screenshot.jpg]" alt="[Project 1 Title]">
+                            <h3>[Project 1 Title]</h3>
+                            <a href="[Live URL]" class="cta-button" target="_blank">View Project</a>
+                        </div>
+                        <div class="card fragment">
+                            <img src="images/[project2-screenshot.jpg]" alt="[Project 2 Title]">
+                            <h3>[Project 2 Title]</h3>
+                            <a href="[Live URL]" class="cta-button" target="_blank">View Project</a>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="skills">
+                    <h2>Our Skills</h2>
+                    <p>We believe in the elegant formula for success:</p>
+                    <p style="font-size: 2rem; margin: 20px 0;" class="fragment">
+                        $$(Idea + Design) \times Development^{Passion} = \infty$$
+                    </p>
+                    <p class="fragment">From simple websites to complex data analysis.</p>
+                </section>
+                
+                <section id="contact">
+                    <h2>Get In Touch</h2>
+                     <p>Let's build something amazing together.</p>
+                    <a href="mailto:[your.team.email@example.com]" class="cta-button">Email Us</a>
+                </section>
+
+            </section>
+        </div>
+    </div>
+
+    <script src="dist/reveal.js"></script>
+    <script src="plugin/notes/notes.js"></script>
+    <script src="plugin/highlight/highlight.js"></script>
+    <script src="plugin/math/math.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            plugins: [ RevealHighlight, RevealNotes, RevealMath.KaTeX ]
+        });
+
+        // --- The JavaScript "Magic" for Custom Navigation ---
+        const navLinks = document.querySelectorAll('.site-header a[data-slide]');
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', event => {
+                event.preventDefault();
+                const slideIndex = event.currentTarget.getAttribute('data-slide');
+                // Reveal.slide(horizontal, vertical, fragment)
+                Reveal.slide(0, parseInt(slideIndex));
+            });
+        });
+    </script>
+</body>
 </html>
