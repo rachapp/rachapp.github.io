@@ -1,0 +1,80 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>My Awesome Presentation</title>
+
+		<link rel="stylesheet" href="dist/reset.css">
+		<link rel="stylesheet" href="dist/reveal.css">
+		<link rel="stylesheet" href="dist/theme/black.css">
+
+		<link rel="stylesheet" href="plugin/highlight/monokai.css">
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				
+				<section>
+					<h2>My First Interactive Presentation</h2>
+					<p>Live on GitHub Pages!</p>
+					<p><small>Created by [Your Name]</small></p>
+				</section>
+
+				<section>
+					<h3>What We'll Cover</h3>
+					<ul>
+						<li class="fragment">What is reveal.js?</li>
+						<li class="fragment">How to use Git and GitHub Pages</li>
+						<li class="fragment">Some cool features</li>
+						<li class="fragment">Next Steps</li>
+					</ul>
+					<aside class="notes">
+						These are my speaker notes. Press the 'S' key to see them in a separate window!
+					</aside>
+				</section>
+
+				<section>
+					<h3>Code Syntax Highlighting</h3>
+					<p>Git commands we used:</p>
+					<pre><code data-line-numbers="2-4|5">
+						# Clone the repo first
+						git clone <url>
+						git add .
+						git commit -m "My message"
+						git push
+					</code></pre>
+				</section>
+
+				<section>
+					<h3>Supports Math</h3>
+					<p>You can write beautiful equations using LaTeX.</p>
+					<p>The quadratic formula is $x = {-b \pm \sqrt{b^2-4ac} \over 2a}$.</p>
+					<p>Einstein's famous equation: $E=mc^2$.</p>
+				</section>
+
+				<section>
+					<h2>Thank You!</h2>
+					<p>Questions?</p>
+					<p>Find this presentation at your-username.github.io</p>
+				</section>
+
+			</div>
+		</div>
+
+		<script src="dist/reveal.js"></script>
+		<script src="plugin/notes/notes.js"></script>
+		<script src="plugin/highlight/highlight.js"></script>
+		<script src="plugin/math/math.js"></script>
+		<script>
+			// More info about config & dependencies:
+			// https://revealjs.com/config/
+			Reveal.initialize({
+				hash: true,
+				// Enable plugins
+				plugins: [ RevealHighlight, RevealNotes, RevealMath.KaTeX ]
+			});
+		</script>
+	</body>
+</html>
