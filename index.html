@@ -144,188 +144,185 @@
         renderer.setSize(window.innerWidth, window.innerHeight, false);
 
         // --- Parameters ---
-        const magnetCount = 20;
+        const magnetCount   = 30;
         const magnetSpacing = 2.0;
-        const undulatorWidth = (magnetCount - 1) * magnetSpacing;
+        const undulatorWidth = (magnetCount - 1) * magnetSpacing; // module length
         const startX = -undulatorWidth / 2;
-        const undulatorLambda = 2.0 * magnetSpacing; // one full oscillation in x
+        const endX   =  startX + undulatorWidth;
+        const undulatorLambda = 2.0 * magnetSpacing;
 
-        const amplitude = 0.25;
-        const frequency = Math.PI / magnetSpacing; // y(x) = A cos(frequency * x)
-        const electronSpeed = 5;            // electron forward speed
+        // Place magnet rows symmetrically about y=0 so the electron center is in the middle
+        const magnetYTop    =  2.0;
+        const magnetYBottom = -2.0;
+        const yCenter = 0.5 * (magnetYTop + magnetYBottom); // = 0.0
 
-        // Circle emission & animation parameters (tuned)
-        const circleSpeedFactor = 0.65;     // circle moves slightly faster than electron
+        // Make magnets wider: almost no gap between adjacent magnets
+        const gapFraction = 0.04;                          // 4% gap of spacing
+        const magW = magnetSpacing * (1.0 - gapFraction);  // very small gap
+        const magH = 0.9;                                   // a touch taller than before
+
+        // Electron oscillation
+        const amplitude = 0.25;                             // about the center between rows
+        const k = Math.PI / magnetSpacing;                  // = 2π / λ_u
+        const electronSpeed = 10.0;
+
+        // Drift settings (outside module)
+        const driftLeft  = 6.0;
+        const driftRight = 6.0;
+        const edgeBlend  = 0.6;   // smooth transition width
+
+        // Loop reset (off-screen)
+        const offscreenPad = 8.0;
+
+        // Circles
+        const circleSpeedFactor = 0.87;
         const circleSpeed = electronSpeed * circleSpeedFactor;
-        const ringR0 = 0.2;                // initial radius (slightly bigger than electron ~0.15)
-        const ringGrowthSpeed = 2.0;        // how fast radius increases (units/sec)
-        const ringLifespan = 7.0;           // longer life (seconds)
-        const ringMaxCount = 100;            // keep only the most recent N circles
-        const ringThickness = 0.008;        // *** thinner band ***
+        const ringR0 = 0.3;
+        const ringGrowthSpeed = 2.0;
+        const ringLifespan = 5.0;
+        const ringMaxCount = 50;
+        const ringThickness = 0.01;
+        const fadeExponent = 1.5;
+        const startOpacity = 0.85;
 
-        // --- 2D Orthographic Camera (auto-fit) ---
+        // --- Camera (fit everything) ---
         let camera;
-        function fitOrthoCamera() {
-        const w = canvas.clientWidth;
-        const h = canvas.clientHeight;
-        const aspect = w / h;
+        function fitOrthoCamera(){
+        const w = canvas.clientWidth, h = canvas.clientHeight, aspect = w/h;
 
-        // Horizontal extents: undulator + margins so first/last period are visible
-        const xMargin = 0.6 * magnetSpacing;
-        const xMin = startX - xMargin;
-        const xMax = startX + undulatorWidth + xMargin;
-        const halfWidth = 0.5 * (xMax - xMin);
+        const xMinScene = startX - driftLeft;
+        const xMaxScene = endX   + driftRight;
+        const halfWidth = 0.5 * (xMaxScene - xMinScene);
 
-        // Vertical extents: include magnets and max ring expansion
         const maxRingRadius = ringR0 + ringGrowthSpeed * ringLifespan + ringThickness;
-        const magnetTopEdge = 1.5 + 0.75 * 0.5;
-        const magnetBottomEdge = -2.5 - 0.75 * 0.5;
-        const yMargin = 0.25;
-        const yHalfNeeded = Math.max(
-            Math.abs(magnetTopEdge),
-            Math.abs(magnetBottomEdge),
-            Math.abs(amplitude) + maxRingRadius
-        ) + yMargin;
+        const magnetTopEdge = magnetYTop + magH * 0.5;
+        const magnetBottomEdge = magnetYBottom - magH * 0.5;
+        const yHalfNeeded = Math.max(Math.abs(magnetTopEdge), Math.abs(magnetBottomEdge), Math.abs(yCenter) + amplitude + maxRingRadius) + 0.25;
 
-        const halfHeightFromX = halfWidth / aspect;
-        const viewHalfHeight = Math.max(yHalfNeeded, halfHeightFromX);
+        const viewHalfHeight = Math.max(yHalfNeeded, halfWidth/aspect);
         const viewHalfWidth  = viewHalfHeight * aspect;
 
-        if (!camera) {
-            camera = new THREE.OrthographicCamera(
-            -viewHalfWidth, viewHalfWidth,
-            viewHalfHeight, -viewHalfHeight,
-            -100, 100
-            );
-        } else {
-            camera.left   = -viewHalfWidth;
-            camera.right  =  viewHalfWidth;
-            camera.top    =  viewHalfHeight;
-            camera.bottom = -viewHalfHeight;
-            camera.updateProjectionMatrix();
-        }
-        camera.position.set((xMin + xMax)/2, 0, 10);
-        camera.lookAt((xMin + xMax)/2, 0, 0);
+        if (!camera) camera = new THREE.OrthographicCamera(-viewHalfWidth, viewHalfWidth, viewHalfHeight, -viewHalfHeight, -100, 100);
+        else { camera.left=-viewHalfWidth; camera.right=viewHalfWidth; camera.top=viewHalfHeight; camera.bottom=-viewHalfHeight; camera.updateProjectionMatrix(); }
+        camera.position.set((xMinScene+xMaxScene)/2, 0, 10); camera.lookAt((xMinScene+xMaxScene)/2, 0, 0);
         }
         fitOrthoCamera();
 
-        // --- Magnets (2D rectangles) ---
+        // --- Magnets (2D) ---
         const magnetGroup = new THREE.Group();
-        const magW = 0.75, magH = 0.75;
         const planeGeom = new THREE.PlaneGeometry(magW, magH);
-        const redMat  = new THREE.MeshBasicMaterial({ color: 0xff5555 });
-        const blueMat = new THREE.MeshBasicMaterial({ color: 0x5555ff });
-        for (let i = 0; i < magnetCount; i++) {
-        const xPos = startX + i * magnetSpacing;
-        const topIsRed = i % 2 === 0;
-        const up = new THREE.Mesh(planeGeom, topIsRed ? redMat : blueMat);
-        up.position.set(xPos,  1.5, 0);
-        magnetGroup.add(up);
-        const dn = new THREE.Mesh(planeGeom, topIsRed ? blueMat : redMat);
-        dn.position.set(xPos, -2.5, 0);
-        magnetGroup.add(dn);
+        const redMat  = new THREE.MeshBasicMaterial({
+            color: 0xff5555,
+            transparent: true,
+            opacity: 0.5,      // <-- alpha
+            depthWrite: false   // optional: helps avoid sorting artifacts with transparency
+        });
+        const blueMat = new THREE.MeshBasicMaterial({
+            color: 0x5555ff,
+            transparent: true,
+            opacity: 0.5,
+            depthWrite: false
+        });
+        for (let i=0;i<magnetCount;i++){
+        const x = startX + i*magnetSpacing;
+        const topIsRed = i%2===0;
+        const up = new THREE.Mesh(planeGeom, topIsRed?redMat:blueMat);
+        up.position.set(x, magnetYTop, 0); magnetGroup.add(up);
+        const dn = new THREE.Mesh(planeGeom, topIsRed?blueMat:redMat);
+        dn.position.set(x, magnetYBottom, 0); magnetGroup.add(dn);
         }
         scene.add(magnetGroup);
 
-        // --- Electron (2D circle) ---
-        const electron = new THREE.Mesh(
-        new THREE.CircleGeometry(0.15, 32),
-        new THREE.MeshBasicMaterial({ color: '#00BFFF' })
-        );
+        // --- Electron ---
+        const electron = new THREE.Mesh(new THREE.CircleGeometry(0.15, 32), new THREE.MeshBasicMaterial({ color:'#00BFFF' }));
         scene.add(electron);
 
-        // --- Thin Ring template ---
-        function makeRingMesh() {
+        // --- Ring factory ---
+        function makeRing(){
         const geom = new THREE.RingGeometry(ringR0 - ringThickness, ringR0 + ringThickness, 256);
-        const mat = new THREE.MeshBasicMaterial({
-            color: 0xffd700,
-            transparent: true,
-            opacity: 0.95,
-            depthWrite: false,
-            blending: THREE.AdditiveBlending,
-            side: THREE.DoubleSide
-        });
-        return new THREE.Mesh(geom, mat);
+        const mat  = new THREE.MeshBasicMaterial({ color:0xffd700, transparent:true, opacity:startOpacity, depthWrite:false, blending:THREE.AdditiveBlending, side:THREE.DoubleSide });
+        const mesh = new THREE.Mesh(geom, mat);
+        scene.add(mesh);
+        return mesh;
         }
 
-        // --- Circle (ring) instance state ---
+        // --- Helpers ---
+        function clamp01(x){ return Math.max(0, Math.min(1, x)); }
+        function smoothstep(e0, e1, x){ const t = clamp01((x-e0)/(e1-e0)); return t*t*(3.0 - 2.0*t); }
+
+        // y(x_abs): cosine inside module around yCenter; straight (≈yCenter) outside with smooth edges
+        function yPath(x_abs){
+        const gateIn  = smoothstep(startX,       startX + edgeBlend, x_abs);
+        const gateOut = 1.0 - smoothstep(endX - edgeBlend, endX,     x_abs);
+        const gate = Math.min(gateIn, gateOut);
+        return yCenter + gate * amplitude * Math.cos(k * (x_abs - startX));
+        }
+
+        // --- State ---
         const rings = []; // { mesh, birthTime, birthAbsX }
-        let lastEmittedPeriodIndex = -1;
-
-        // --- Helpers for wrapping x into visible window ---
-        function wrapToWindow(absX) {
-        const mod = ((absX - startX) % undulatorWidth + undulatorWidth) % undulatorWidth;
-        return startX + mod;
-        }
+        let lastPeriodIdx = -1;
+        let x0 = startX - driftLeft - offscreenPad;
+        let t0 = 0;
 
         // --- Animation ---
         const clock = new THREE.Clock();
-        function animate() {
+        function animate(){
         requestAnimationFrame(animate);
         const t = clock.getElapsedTime();
+        const x_abs_e = x0 + electronSpeed*(t - t0);
+        const y_e = yPath(x_abs_e);
+        electron.position.set(x_abs_e, y_e, 0);
 
-        // Electron absolute distance
-        const absDist = t * electronSpeed;
-        const eProgress = absDist % undulatorWidth;
-        const x_e = startX + eProgress;
-        const y_e = amplitude * Math.cos(frequency * eProgress);
-        electron.position.set(x_e, y_e, 0);
-
-        // Emit a new ring once per undulator period
-        const periodIndex = Math.floor(absDist / undulatorLambda);
-        if (periodIndex !== lastEmittedPeriodIndex) {
-            lastEmittedPeriodIndex = periodIndex;
-            const ring = makeRingMesh();
+        // Emit rings only inside module
+        if (x_abs_e >= startX && x_abs_e <= endX) {
+            const periodsFromLeft = (x_abs_e - startX) / undulatorLambda;
+            const periodIdx = Math.floor(periodsFromLeft + 1e-6);
+            if (periodIdx !== lastPeriodIdx){
+            lastPeriodIdx = periodIdx;
+            const ring = makeRing();
             ring.userData.birthTime = t;
-            ring.userData.birthAbsX = x_e; // absolute x at emission
-            scene.add(ring);
+            ring.userData.birthAbsX = x_abs_e;
             rings.push(ring);
-            if (rings.length > ringMaxCount) {
-            const old = rings.shift();
-            scene.remove(old);
-            old.geometry.dispose();
-            old.material.dispose();
+            if (rings.length > ringMaxCount){ const old = rings.shift(); cleanupRing(old); }
             }
+        } else {
+            lastPeriodIdx = -1;
         }
 
         // Update rings
-        for (let i = rings.length - 1; i >= 0; i--) {
+        for (let i=rings.length-1; i>=0; i--){
             const r = rings[i];
             const age = t - r.userData.birthTime;
 
-            // Motion along x with slight lead
             const x_abs = r.userData.birthAbsX + circleSpeed * age;
-            const x_loc = wrapToWindow(x_abs);
-            const y_loc = amplitude * Math.cos(frequency * ((x_loc - startX) % undulatorWidth));
-            r.position.set(x_loc, y_loc, 0);
+            const y     = yPath(x_abs);
+            r.position.set(x_abs, y, 0);
 
-            // Expansion
             const radius = ringR0 + ringGrowthSpeed * age;
-            const scale = radius / ringR0;
+            const scale  = radius / ringR0;
             r.scale.set(scale, scale, 1);
 
-            // Slower, ease‑out fading (stays brighter longer)
             const u = Math.min(1, age / ringLifespan);
-            const easeOut = 1.0 - Math.pow(u, 1.5); // bias brightness toward early life
-            r.material.opacity = 0.95 * easeOut;
+            const easeOut = 1.0 - Math.pow(u, fadeExponent);
+            r.material.opacity = Math.max(0.0, startOpacity * easeOut);
 
-            // Cleanup when fully faded
-            if (u >= 1.0) {
-            scene.remove(r);
-            rings.splice(i, 1);
-            r.geometry.dispose();
-            r.material.dispose();
-            }
+            if (u >= 1){ cleanupRing(r); rings.splice(i,1); }
+        }
+
+        // Loop reset when far to the right
+        const sceneRight = endX + driftRight;
+        if (x_abs_e > sceneRight + offscreenPad){
+            x0 = startX - driftLeft - offscreenPad;
+            t0 = t;
         }
 
         renderer.render(scene, camera);
         }
 
-        // --- Resize handling ---
-        function onResize() {
-        renderer.setSize(window.innerWidth, window.innerHeight, false);
-        fitOrthoCamera();
-        }
+        function cleanupRing(r){ scene.remove(r); r.geometry.dispose(); r.material.dispose(); }
+
+        // --- Resize ---
+        function onResize(){ renderer.setSize(window.innerWidth, window.innerHeight, false); fitOrthoCamera(); }
         window.addEventListener('resize', onResize, false);
         onResize();
         animate();
