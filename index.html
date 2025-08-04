@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>P. Pongchalee | Physicist & Researcher</title>
-    <!-- Link to your original stylesheet -->
     <link rel="stylesheet" href="style.css">
-    <!-- Google Fonts: Poppins, as used in your original stylesheet -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -14,55 +12,74 @@
         /* --- Styles for the new About Me section with Avatar --- */
         #about .about-container {
             display: flex;
-            align-items: flex-start; /* Aligns avatar and text to the top */
-            gap: 50px; /* Creates space between the avatar and the text */
+            align-items: flex-start;
+            gap: 50px;
         }
 
         #about .about-avatar {
-            flex-shrink: 0; /* Prevents the avatar from shrinking */
+            flex-shrink: 0;
             text-align: center;
         }
 
         #about .about-avatar img {
             width: 200px;
             height: 200px;
-            border-radius: 50%; /* Makes the avatar circular */
-            border: 3px solid var(--primary-color); /* Uses the accent color from your CSS */
+            border-radius: 50%;
+            border: 3px solid var(--primary-color);
             background-color: var(--bg-content);
-            padding: 5px; /* Adds a little space inside the border */
+            padding: 5px;
         }
         
         #about .about-text .section-title,
         #about .about-text .section-subtitle {
-            text-align: left; /* Aligns the title and subtitle to the left */
+            text-align: left;
             margin-left: 0;
             margin-right: 0;
             max-width: 100%;
         }
 
         #about .about-text h3 {
-            margin-top: 1.5rem; /* Adds space above the "Foundation" heading */
-            color: var(--primary-color); /* Use accent color for sub-heading */
+            margin-top: 1.5rem;
+            color: var(--primary-color);
         }
 
-        /* Responsive adjustments for smaller screens */
+        /* --- Styles for the WebGL Canvas --- */
+        #hero {
+            position: relative; /* Needed for absolute positioning of canvas */
+            overflow: hidden; /* Hide anything that goes outside the hero area */
+        }
+
+        #wiggler-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1; /* Place canvas behind the text */
+        }
+
+        #hero .container {
+            position: relative; /* Ensure text container is on top */
+            z-index: 2;
+        }
+
+        /* Responsive adjustments */
         @media (max-width: 768px) {
             #about .about-container {
-                flex-direction: column; /* Stacks avatar and text vertically */
-                align-items: center; /* Centers the items */
+                flex-direction: column;
+                align-items: center;
                 gap: 30px;
             }
 
             #about .about-text .section-title,
             #about .about-text .section-subtitle {
-                text-align: center; /* Center-aligns text on mobile */
+                text-align: center;
             }
         }
     </style>
 </head>
-<body>
+<body style="background-color: var(--bg-main);">
 
-    <!-- Header and Navigation -->
     <header class="navbar">
         <div class="container">
             <a href="index.html" class="logo">P. Pongchalee</a>
@@ -78,22 +95,21 @@
     </header>
 
     <main>
-        <!-- Hero Section -->
+        <!-- Hero Section with WebGL Canvas -->
         <section id="hero">
+            <canvas id="wiggler-canvas"></canvas>
             <div class="container">
                 <h1>Advancing Science with Light & Code</h1>
-                <p class="section-subtitle" style="color: white; font-size: 1.2rem;">A physicist specializing in synchrotron instrumentation and computational modeling to uncover the fundamental properties of matter.</p>
+                <p class="section-subtitle" style="color: white; font-size: 1.2rem;">A physicist specializing in synchrotron instrumentation and computational modeling to develop and optimize next-generation light sources..</p>
             </div>
         </section>
 
-        <!-- About Section - Redesigned with Avatar -->
+        <!-- About Section -->
         <section id="about">
             <div class="container about-container">
-                <!-- Avatar Column -->
                 <div class="about-avatar">
                     <img src="https://api.dicebear.com/9.x/notionists/svg?seed=Katherine&backgroundType=gradientLinear&backgroundRotation=0,360,40&beard[]&body=variant20&bodyIcon[]&gesture[]&glasses=variant11&glassesProbability=100&hair=variant01,variant03,variant05,variant07,variant11,variant12,variant15&lips=variant02,variant03,variant04,variant05,variant06,variant07,variant08,variant09,variant10,variant11,variant12,variant13,variant14,variant15,variant16,variant17,variant18,variant19,variant20,variant21,variant22,variant23,variant24,variant25,variant26,variant27,variant28,variant29,variant30,variant01&backgroundColor=d1d4f9" alt="Avatar for P. Pongchalee">
                 </div>
-                <!-- Text Column -->
                 <div class="about-text">
                     <h2 class="section-title">About Me</h2>
                     <p class="section-subtitle">
@@ -111,12 +127,147 @@
         </section>
     </main>
 
-    <!-- Footer -->
     <footer>
         <div class="container">
             <p>&copy; 2025 P. Pongchalee. All Rights Reserved.</p>
         </div>
     </footer>
 
+    <!-- Using a direct script include for Three.js for maximum compatibility -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <!-- Wiggler Animation Script - Final Corrected Version -->
+    <script>
+        // --- Scene, Camera, Renderer Setup ---
+        const scene = new THREE.Scene();
+        const canvas = document.getElementById('wiggler-canvas');
+        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+        renderer.setPixelRatio(window.devicePixelRatio);
+        
+        const camera = new THREE.PerspectiveCamera(75, canvas.clientWidth / canvas.clientHeight, 0.1, 1000);
+        camera.position.set(0, 0, 12); // Pull camera back to see the whole undulator
+        camera.lookAt(0, 0, 0);
+
+        // --- Lighting ---
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+        scene.add(ambientLight);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight.position.set(5, 5, 5);
+        scene.add(directionalLight);
+
+        // --- Electron Setup ---
+        const electron = new THREE.Mesh(
+            new THREE.SphereGeometry(0.15, 16, 16),
+            new THREE.MeshStandardMaterial({ color: '#00BFFF', emissive: '#00BFFF', emissiveIntensity: 1 })
+        );
+        electron.renderOrder = 1; 
+        scene.add(electron);
+        
+        // --- Undulator Magnets (Fixed Number) ---
+        const magnetGroup = new THREE.Group();
+        const magnetGeometry = new THREE.BoxGeometry(0.75, 0.75, 0.75);
+        const redMaterial = new THREE.MeshStandardMaterial({ color: 0xff5555, roughness: 0.6 });
+        const blueMaterial = new THREE.MeshStandardMaterial({ color: 0x5555ff, roughness: 0.6 });
+        const magnetCount = 20;
+        const magnetSpacing = 2.0;
+        const undulatorWidth = (magnetCount - 1) * magnetSpacing;
+        const startX = -undulatorWidth / 2;
+
+        for (let i = 0; i < magnetCount; i++) {
+            const xPos = startX + i * magnetSpacing;
+            const topIsRed = i % 2 === 0;
+            
+            const magnetUp = new THREE.Mesh(magnetGeometry, topIsRed ? redMaterial : blueMaterial);
+            magnetUp.position.set(xPos, 1.5, 0);
+            magnetGroup.add(magnetUp);
+
+            const magnetDown = new THREE.Mesh(magnetGeometry, topIsRed ? blueMaterial : redMaterial);
+            magnetDown.position.set(xPos, -2.5, 0);
+            magnetGroup.add(magnetDown);
+        }
+        scene.add(magnetGroup);
+
+        // --- Radiation Wavefronts ---
+        const wavefronts = [];
+        const wavefrontGeometry = new THREE.TorusGeometry(0.2, 0.04, 8, 40);
+        const wavefrontMaterial = new THREE.MeshStandardMaterial({
+            color: 0xffd700,
+            emissive: 0xffd700,
+            emissiveIntensity: 2,
+            transparent: true
+        });
+        
+        let timeSinceLastEmit = 0;
+        const emitInterval = 0.05;
+
+        // --- Animation Loop ---
+        const clock = new THREE.Clock();
+        const electronSpeed = 8;
+        const lightSpeed = electronSpeed * 1.25; // Light is faster than the electron
+        const amplitude = 0.2;
+        const frequency = Math.PI / magnetSpacing;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const deltaTime = clock.getDelta();
+            const elapsedTime = clock.getElapsedTime();
+
+            // Animate electron
+            const loopProgress = (elapsedTime * electronSpeed) % undulatorWidth;
+            electron.position.x = startX + loopProgress;
+            electron.position.y = amplitude * Math.cos(frequency * loopProgress);
+
+            // Create new wavefronts
+            timeSinceLastEmit += deltaTime;
+            if (timeSinceLastEmit > emitInterval) {
+                const wavefront = new THREE.Mesh(wavefrontGeometry, wavefrontMaterial.clone());
+                wavefront.position.copy(electron.position);
+                wavefront.rotation.y = Math.PI / 2;
+                wavefront.userData.emitTime = elapsedTime;
+                scene.add(wavefront);
+                wavefronts.push(wavefront);
+                timeSinceLastEmit = 0;
+            }
+
+            // Animate all wavefronts
+            for (let i = wavefronts.length - 1; i >= 0; i--) {
+                const wavefront = wavefronts[i];
+                const timeAlive = elapsedTime - wavefront.userData.emitTime;
+
+                // ** THE FIX: Wavefronts now move forward at lightSpeed **
+                wavefront.position.x += lightSpeed * deltaTime;
+                
+                // They also expand laterally
+                const scale = 1 + timeAlive * 2;
+                wavefront.scale.set(scale, scale, scale);
+
+                // And fade out
+                wavefront.material.opacity = 1.0 - (timeAlive / 2.0);
+
+                // Cleanup
+                if (wavefront.material.opacity <= 0) {
+                    scene.remove(wavefront);
+                    wavefronts.splice(i, 1);
+                }
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        // --- Handle Resizing ---
+        function onWindowResize() {
+            const hero = document.getElementById('hero');
+            const width = hero.clientWidth;
+            const height = hero.clientHeight;
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+            renderer.setSize(width, height);
+        }
+        window.addEventListener('resize', onWindowResize, false);
+        onWindowResize();
+
+        // Start the animation
+        animate();
+    </script>
 </body>
 </html>

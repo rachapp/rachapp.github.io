@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Projects | Dr. [Your Name]</title>
+    <title>Projects | P. Pongchalee</title>
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,13 +11,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
     <style>
-        /* --- Additional Styles for Clickable Cards & Modals --- */
+        /* --- Styles for Clickable Cards & Modals (from original file) --- */
         .team-member-card {
-            cursor: pointer; /* Indicates the card is clickable */
+            cursor: pointer;
         }
 
         .modal {
-            display: none; /* Hidden by default */
+            display: none; 
             position: fixed;
             z-index: 2000;
             left: 0;
@@ -30,10 +30,12 @@
         }
 
         .modal-content {
-            background-color: #fefefe;
-            margin: 5% auto; /* Adjusted margin for better centering */
+            background-color: var(--bg-content); /* Match dark theme */
+            color: var(--text-primary);
+            margin: 5% auto;
             padding: 30px;
             border-radius: 10px;
+            border: var(--border-subtle);
             width: 90%;
             max-width: 800px;
             position: relative;
@@ -52,39 +54,45 @@
 
         .modal-close:hover,
         .modal-close:focus {
-            color: black;
+            color: var(--primary-color);
         }
 
         .modal-header {
             display: flex;
             align-items: center;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid var(--border-subtle);
             padding-bottom: 20px;
             margin-bottom: 20px;
         }
         
         .modal-header h2 {
             margin: 0;
+            color: var(--text-primary);
         }
         .modal-header .role {
-             color: var(--text-light);
+             color: var(--text-secondary);
         }
 
         .modal-body h3 {
             color: var(--primary-color);
             margin-top: 20px;
             margin-bottom: 10px;
-            border-bottom: 2px solid var(--secondary-color);
+            border-bottom: 2px solid var(--primary-color);
             padding-bottom: 5px;
+            display: inline-block;
         }
 
         .modal-body ul {
             list-style-position: inside;
             padding-left: 10px;
         }
+        
+        .modal-body ul li {
+            margin-bottom: 0.5rem;
+        }
 
         body.modal-open {
-            overflow: hidden; /* Prevents background scrolling when modal is open */
+            overflow: hidden;
         }
 
         @keyframes fadeIn {
@@ -97,7 +105,7 @@
 
     <header class="navbar">
         <div class="container">
-            <a href="index.html" class="logo">Dr. [Your Name]</a>
+            <a href="index.html" class="logo">P. Pongchalee</a>
             <nav>
                 <ul class="nav-links">
                     <li><a href="index.html">Home</a></li>
@@ -114,26 +122,29 @@
             <h1>Research & Development Projects</h1>
         </section>
 
-        <section id="team-members">
+        <section id="projects">
              <div class="container">
-                <p class="section-subtitle">Here are some of the key research and development projects I am currently involved in or have led. Click on any project to learn more.</p>
+                <p class="section-subtitle">A selection of key research and development projects that showcase my focus on computational physics, software development, and beamline instrumentation. Click on any project to learn more.</p>
                 <div class="grid">
-                    <div class="card team-member-card" data-modal-target="#modal-proj1">
+                    <!-- Project 1 Card -->
+                    <div class="card team-member-card" data-modal-target="#modal-fel">
                         <div class="card-content">
-                            <h3>In-Situ XAS Chamber Development</h3>
-                            <p class="role">Lead Designer & Scientist</p>
+                            <h3>Advanced FEL Simulations</h3>
+                            <p class="role">Computational Physics | HPC</p>
                         </div>
                     </div>
-                    <div class="card team-member-card" data-modal-target="#modal-proj2">
+                    <!-- Project 2 Card -->
+                    <div class="card team-member-card" data-modal-target="#modal-software">
                          <div class="card-content">
-                            <h3>Automated Data Analysis Pipeline</h3>
-                            <p class="role">Python | Data Analysis</p>
+                            <h3>Beamline Control Software</h3>
+                            <p class="role">Python | PyQt6 | Instrumentation</p>
                         </div>
                     </div>
-                    <div class="card team-member-card" data-modal-target="#modal-proj3">
+                    <!-- Project 3 Card -->
+                    <div class="card team-member-card" data-modal-target="#modal-dcm">
                          <div class="card-content">
-                            <h3>[Your Third Project Title]</h3>
-                            <p class="role">Key Technologies Used</p>
+                            <h3>Double-Crystal Monochromator</h3>
+                            <p class="role">Instrumentation | Commissioning</p>
                         </div>
                     </div>
                 </div>
@@ -143,87 +154,94 @@
 
     <footer>
         <div class="container">
-            <p>&copy; 2025 Dr. [Your Name]. All Rights Reserved.</p>
+            <p>&copy; 2025 P. Pongchalee. All Rights Reserved.</p>
         </div>
     </footer>
 
+    <!-- Modals Container -->
     <div id="modals-container">
-        <div class="modal" id="modal-proj1">
+        <!-- FEL Simulation Modal -->
+        <div class="modal" id="modal-fel">
             <div class="modal-content">
                 <span class="modal-close">&times;</span>
-                <div class="modal-header" style="align-items: flex-start;">
-                    <i class="fas fa-cogs" style="font-size: 50px; margin-right: 20px; color: var(--primary-color);"></i>
+                <div class="modal-header">
+                    <i class="fas fa-wave-square" style="font-size: 50px; margin-right: 20px; color: var(--primary-color);"></i>
                     <div>
-                        <h2>In-Situ XAS Chamber Development</h2>
-                        <p class="role">Lead Designer & Scientist</p>
+                        <h2>Advanced Free-Electron Laser (FEL) Simulations</h2>
+                        <p class="role">Lead Researcher</p>
                     </div>
                 </div>
                 <div class="modal-body">
                     <h3>Project Goal</h3>
-                    <p>[Detailed description of the project. What was the objective? e.g., To design and commission a new experimental chamber for conducting X-ray Absorption Spectroscopy on catalytic materials under realistic operating conditions (high temperature and pressure).]</p>
+                    <p>To leverage high-performance computing to simulate and explore novel operational modes and new physical regimes of Free-Electron Lasers. The primary objective is to push the boundaries of coherent light source performance and uncover new operational possibilities.</p>
                     <h3>My Contributions</h3>
                     <ul>
-                        <li>Led the mechanical design using [Software].</li>
-                        <li>Developed the control software using [Language/Framework].</li>
-                        <li>Successfully commissioned the chamber, leading to a 50% increase in experimental throughput.</li>
+                        <li>Developing and running complex FEL simulation codes to model laser dynamics.</li>
+                        <li>Analyzing large-scale simulation data to identify and characterize new modes of operation.</li>
+                        <li>Utilizing the ThaiSC High-Performance Computing (HPC) facility to execute computationally intensive tasks and manage massive datasets.</li>
                     </ul>
                     <h3>Technologies</h3>
-                    <p>LabVIEW, Python, EPICS, 3D-CAD Design</p>
+                    <p>Fortran/C++, Python, High-Performance Computing (HPC), Parallel Programming (MPI/OpenMP), Scientific Data Analysis Libraries.</p>
                 </div>
             </div>
         </div>
 
-        <div class="modal" id="modal-proj2">
+        <!-- Beamline Software Modal -->
+        <div class="modal" id="modal-software">
             <div class="modal-content">
                 <span class="modal-close">&times;</span>
-                 <div class="modal-header" style="align-items: flex-start;">
-                    <i class="fas fa-chart-line" style="font-size: 50px; margin-right: 20px; color: var(--primary-color);"></i>
+                 <div class="modal-header">
+                    <i class="fas fa-code" style="font-size: 50px; margin-right: 20px; color: var(--primary-color);"></i>
                     <div>
-                        <h2>Automated Data Analysis Pipeline</h2>
-                        <p class="role">Python Developer</p>
+                        <h2>Python-Based Beamline Control & Data Acquisition</h2>
+                        <p class="role">Lead Developer</p>
                     </div>
                 </div>
                 <div class="modal-body">
                     <h3>Project Goal</h3>
-                    <p>[Detailed description. e.g., To create a robust, automated data processing and analysis pipeline for XAS data, reducing user analysis time from hours to minutes.]</p>
+                    <p>To develop a modern, robust, and user-friendly software suite for controlling beamline components and managing the entire data lifecycle at SLRI, from acquisition and motion control to real-time processing.</p>
                     <h3>My Contributions</h3>
                     <ul>
-                        <li>Developed a suite of Python libraries for data normalization, background subtraction, and preliminary fitting.</li>
-                        <li>Packaged the tool for easy distribution to users.</li>
+                        <li>Designing and implementing a comprehensive Python application for integrated motion control and data acquisition systems.</li>
+                        <li>Creating an intuitive Graphical User Interface (GUI) using the PyQt6 framework to simplify user interaction with complex hardware.</li>
+                        <li>Developing scripts for on-the-fly data processing and visualization to provide immediate experimental feedback.</li>
                     </ul>
                     <h3>Technologies</h3>
-                    <p>Python, Pandas, NumPy, Scikit-learn, Larch</p>
+                    <p>Python, PyQt6, EPICS, Motion Controllers, Data Acquisition Hardware, NumPy, Pandas.</p>
                 </div>
             </div>
         </div>
         
-        <div class="modal" id="modal-proj3">
+        <!-- DCM Commissioning Modal -->
+        <div class="modal" id="modal-dcm">
             <div class="modal-content">
                 <span class="modal-close">&times;</span>
-                 <div class="modal-header" style="align-items: flex-start;">
-                    <i class="fas fa-lightbulb" style="font-size: 50px; margin-right: 20px; color: var(--primary-color);"></i>
+                 <div class="modal-header">
+                    <i class="fas fa-tools" style="font-size: 50px; margin-right: 20px; color: var(--primary-color);"></i>
                     <div>
-                        <h2>[Your Third Project Title]</h2>
-                        <p class="role">Your Role</p>
+                        <h2>Double-Crystal Monochromator (DCM) Development & Commissioning</h2>
+                        <p class="role">Commissioning Scientist</p>
                     </div>
                 </div>
                 <div class="modal-body">
                     <h3>Project Goal</h3>
-                    <p>[Detailed description of your third project.]</p>
+                    <p>To lead the complete development, integration, and commissioning of a critical beamline component—the Double-Crystal Monochromator (DCM)—ensuring its precise and reliable operation for user experiments.</p>
                     <h3>My Contributions</h3>
                     <ul>
-                        <li>[Contribution 1]</li>
-                        <li>[Contribution 2]</li>
+                        <li>Developed the complete Python-based GUI for DCM control, calibration, and diagnostics.</li>
+                        <li>Implemented and rigorously verified the precision of the crystal movements and rotations to meet stringent operational requirements.</li>
+                        <li>Integrated a laser-based beam position monitoring system for active feedback and enhanced stability.</li>
+                        <li>Conducted full commissioning tests to validate optical and mechanical performance against design specifications.</li>
                     </ul>
                     <h3>Technologies</h3>
-                    <p>[Technologies Used]</p>
+                    <p>Python, PyQt6, Precision Motion Control, Optical Alignment, Laser Systems, Vacuum Technology, Interferometry.</p>
                 </div>
             </div>
         </div>
     </div>
 
-
     <script>
+        // JavaScript for modal functionality
         document.addEventListener('DOMContentLoaded', () => {
             const openModalTriggers = document.querySelectorAll('[data-modal-target]');
             const closeModalTriggers = document.querySelectorAll('.modal-close');
@@ -247,7 +265,6 @@
                 document.body.classList.remove('modal-open');
             }
             
-            // Add closing functionality to all close buttons
             closeModalTriggers.forEach(button => {
                 button.addEventListener('click', () => {
                     const modal = button.closest('.modal');
@@ -255,7 +272,6 @@
                 });
             });
 
-            // Close modal if user clicks on the overlay
             window.addEventListener('click', (event) => {
                 const openModal = document.querySelector('.modal[style*="display: block"]');
                 if (event.target === openModal) {
