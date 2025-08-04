@@ -1,17 +1,14 @@
-/* --- Personal Portfolio - Dark Minimalist Style --- */
+/* --- SLRI Beamline Division - Shared Stylesheet --- */
 
 /* --- CSS Variables for Easy Theming --- */
 :root {
-    /* Color Palette */
-    --primary-color: #00BFFF; /* Deep Sky Blue - A vibrant accent */
-    --secondary-color: #00BFFF; /* Using the same accent for consistency */
-    --bg-main: #121212;      /* A near-black, standard for dark UI */
-    --bg-content: #1E1E1E;   /* A slightly lighter dark for cards and nav */
-    --text-primary: #EAEAEA;   /* A soft white for main text */
-    --text-secondary: #A0A0A0; /* A light grey for subtitles and less important text */
-    
-    /* Removed shadow for a flatter, minimalist look */
-    --border-subtle: 1px solid rgba(255, 255, 255, 0.1);
+    --primary-color: #005f9e; /* A deep, professional blue */
+    --secondary-color: #00aaff; /* A brighter blue for accents */
+    --bg-light: #f4f7f6;
+    --bg-white: #ffffff;
+    --text-dark: #333333;
+    --text-light: #666666;
+    --shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
 /* --- Global Styles & Reset --- */
@@ -27,8 +24,8 @@ html {
 
 body {
     font-family: 'Poppins', sans-serif;
-    background-color: var(--bg-main);
-    color: var(--text-primary);
+    background-color: var(--bg-light);
+    color: var(--text-dark);
     line-height: 1.7;
 }
 
@@ -43,7 +40,7 @@ section {
 }
 
 h1, h2, h3, h4, h5, h6 {
-    color: var(--text-primary); /* Headings are primary text color */
+    color: var(--primary-color);
     margin-bottom: 1rem;
 }
 
@@ -57,7 +54,7 @@ p.section-subtitle {
     text-align: center;
     max-width: 700px;
     margin: 0 auto 50px auto;
-    color: var(--text-secondary);
+    color: var(--text-light);
     font-size: 1.1rem;
 }
 
@@ -69,32 +66,48 @@ p.section-subtitle {
 }
 
 .card {
-    background: var(--bg-content);
+    background: var(--bg-white);
     border-radius: 10px;
-    border: var(--border-subtle);
+    box-shadow: var(--shadow);
     overflow: hidden;
-    transition: transform 0.3s ease, border-color 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .card:hover {
     transform: translateY(-5px);
-    border-color: var(--primary-color);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
 }
 
 .card-content {
     padding: 1.5rem;
 }
 
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: var(--secondary-color);
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+    background-color: var(--primary-color);
+}
+
+
 /* --- Header & Navigation Bar --- */
 .navbar {
-    background-color: var(--bg-content);
+    background-color: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(8px);
     padding: 1rem 0;
     position: sticky;
     top: 0;
     width: 100%;
     z-index: 1000;
-    border-bottom: var(--border-subtle);
-    backdrop-filter: blur(8px); /* This effect is subtle on dark backgrounds but can stay */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
 
 .navbar .container {
@@ -106,7 +119,7 @@ p.section-subtitle {
 .navbar .logo {
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--text-primary);
+    color: var(--primary-color);
     text-decoration: none;
 }
 
@@ -118,37 +131,35 @@ p.section-subtitle {
 .navbar .nav-links a {
     padding: 0 15px;
     text-decoration: none;
-    color: var(--text-secondary);
+    color: var(--text-dark);
     font-weight: 600;
     transition: color 0.3s ease;
 }
 
 .navbar .nav-links a:hover,
 .navbar .nav-links a.active {
-    color: var(--primary-color); /* Use accent color for active/hover link */
+    color: var(--secondary-color);
 }
 
 /* --- Page Header (for sub-pages) --- */
 .page-header {
-    background-color: var(--bg-main); /* Match the main background */
-    border-bottom: var(--border-subtle);
-    color: var(--text-primary);
+    background-color: var(--primary-color);
+    color: white;
     padding: 40px 0;
     text-align: center;
 }
 .page-header h1 {
-    color: var(--text-primary);
+    color: white;
     font-size: 3rem;
 }
 
 
 /* --- Homepage Specific --- */
 #hero {
-    /* The image and overlay work well with a dark theme, no major change needed */
-    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('images/slri-banner.png');
+    background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('images/slri-banner.png');
     background-size: cover;
     background-position: center;
-    color: #ffffff;
+    color: var(--bg-white);
     text-align: center;
     padding: 120px 0;
 }
@@ -156,25 +167,44 @@ p.section-subtitle {
 #hero h1 {
     font-size: 3.5rem;
     font-weight: 700;
-    color: #ffffff; /* Ensure hero text is pure white */
-    text-shadow: none; /* Removed shadow for flat design */
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+    color: white;
 }
 
-/* --- Project/Team Page Specific --- */
+/* --- Team Page Specific --- */
 .team-member-card {
     text-align: center;
+    cursor: pointer; /* JUST ADDED*/
+}
+.team-member-card img {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin: 1.5rem auto;
+    border: 5px solid var(--bg-light);
+}
+.team-member-card h3 {
+    margin-bottom: 0.25rem;
 }
 .team-member-card .role {
-    color: var(--primary-color); /* Use accent color for roles/technologies */
+    color: var(--secondary-color);
     font-weight: 600;
     margin-bottom: 1rem;
+}
+.team-member-card .email-icon {
+    color: var(--text-light);
+    text-decoration: none;
+}
+.team-member-card .email-icon:hover {
+    color: var(--secondary-color);
 }
 
 
 /* --- Research Page Specific --- */
 .research-card .icon {
     font-size: 3rem;
-    color: var(--primary-color); /* Use accent color for icons */
+    color: var(--secondary-color);
     margin-bottom: 1.5rem;
     text-align: center;
 }
@@ -187,13 +217,12 @@ p.section-subtitle {
 footer {
     text-align: center;
     padding: 30px 0;
-    background-color: var(--bg-content);
-    color: var(--text-secondary);
-    border-top: var(--border-subtle);
+    background-color: #222;
+    color: #ccc;
 }
 footer p {
     margin: 0;
 }
 footer a {
-    color: var(--text-primary);
+    color: white;
 }

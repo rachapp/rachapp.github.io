@@ -3,26 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home | Beamline Division | SLRI</title>
-    <!-- Link to the SHARED stylesheet -->
+    <title>P. Pongchalee | Physicist & Researcher</title>
+    <!-- Link to your original stylesheet -->
     <link rel="stylesheet" href="style.css">
-    <!-- Google Fonts & Font Awesome -->
+    <!-- Google Fonts: Poppins, as used in your original stylesheet -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        /* --- Styles for the new About Me section with Avatar --- */
+        #about .about-container {
+            display: flex;
+            align-items: flex-start; /* Aligns avatar and text to the top */
+            gap: 50px; /* Creates space between the avatar and the text */
+        }
+
+        #about .about-avatar {
+            flex-shrink: 0; /* Prevents the avatar from shrinking */
+            text-align: center;
+        }
+
+        #about .about-avatar img {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%; /* Makes the avatar circular */
+            border: 3px solid var(--primary-color); /* Uses the accent color from your CSS */
+            background-color: var(--bg-content);
+            padding: 5px; /* Adds a little space inside the border */
+        }
+        
+        #about .about-text .section-title,
+        #about .about-text .section-subtitle {
+            text-align: left; /* Aligns the title and subtitle to the left */
+            margin-left: 0;
+            margin-right: 0;
+            max-width: 100%;
+        }
+
+        #about .about-text h3 {
+            margin-top: 1.5rem; /* Adds space above the "Foundation" heading */
+            color: var(--primary-color); /* Use accent color for sub-heading */
+        }
+
+        /* Responsive adjustments for smaller screens */
+        @media (max-width: 768px) {
+            #about .about-container {
+                flex-direction: column; /* Stacks avatar and text vertically */
+                align-items: center; /* Centers the items */
+                gap: 30px;
+            }
+
+            #about .about-text .section-title,
+            #about .about-text .section-subtitle {
+                text-align: center; /* Center-aligns text on mobile */
+            }
+        }
+    </style>
 </head>
 <body>
 
-    <!-- Navigation Bar -->
+    <!-- Header and Navigation -->
     <header class="navbar">
         <div class="container">
-            <a href="index.html" class="logo">SLRI Beamline Division</a>
+            <a href="index.html" class="logo">P. Pongchalee</a>
             <nav>
                 <ul class="nav-links">
                     <li><a href="index.html" class="active">Home</a></li>
-                    <li><a href="team.html">Our Team</a></li>
                     <li><a href="research.html">Research</a></li>
+                    <li><a href="projects.html">Projects</a></li>
                     <li><a href="contact.html">Contact</a></li>
                 </ul>
             </nav>
@@ -32,30 +80,32 @@
     <main>
         <!-- Hero Section -->
         <section id="hero">
-            <h1>Advancing Science Through Light</h1>
-            <p class="section-subtitle" style="color: white; font-size: 1.2rem;">The national center for synchrotron research and applications in Thailand.</p>
+            <div class="container">
+                <h1>Advancing Science with Light & Code</h1>
+                <p class="section-subtitle" style="color: white; font-size: 1.2rem;">A physicist specializing in synchrotron instrumentation and computational modeling to uncover the fundamental properties of matter.</p>
+            </div>
         </section>
 
-        <!-- About Section -->
+        <!-- About Section - Redesigned with Avatar -->
         <section id="about">
-            <div class="container">
-                <h2 class="section-title">Welcome to the Beamline Division</h2>
-                <p class="section-subtitle">
-                    Our mission is to develop and operate world-class experimental stations, providing researchers from academia and industry with powerful tools to investigate the fundamental properties of matter. We are committed to fostering innovation and driving scientific discovery across a wide spectrum of disciplines.
-                </p>
-                <div class="grid">
-                    <div class="card">
-                        <div class="card-content">
-                            <h3>Our Vision</h3>
-                            <p>[A short paragraph about the long-term vision and goals of the division. e.g., "To be a leading synchrotron facility in Southeast Asia, recognized for cutting-edge research, excellent user support, and impactful contributions to science and technology."]</p>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="card-content">
-                            <h3>What We Do</h3>
-                            <p>[A short paragraph summarizing the main activities. e.g., "We design, build, and maintain sophisticated beamlines, assist users with their experiments, and conduct our own in-house research to push the capabilities of our instruments."]</p>
-                        </div>
-                    </div>
+            <div class="container about-container">
+                <!-- Avatar Column -->
+                <div class="about-avatar">
+                    <img src="https://api.dicebear.com/8.x/notionists/svg?seed=en2" alt="Avatar for P. Pongchalee">
+                </div>
+                <!-- Text Column -->
+                <div class="about-text">
+                    <h2 class="section-title">About Me</h2>
+                    <p class="section-subtitle">
+                        My work bridges the gap between theoretical physics and practical application, from simulating novel light sources to developing the tools that power real-world experiments.
+                    </p>
+                    <p>
+                        As a Beamline Scientist at the <strong>Synchrotron Light Research Institute (SLRI)</strong>, I design, develop, and operate advanced beamline instrumentation. I apply sophisticated synchrotron techniques to diverse research challenges and collaborate with scientists to turn experimental concepts into reality. This role demands a deep, practical understanding of how light interacts with matter.
+                    </p>
+                    <h3>Foundation in Computational Physics</h3>
+                    <p>
+                        My work is built on a strong foundation in computational physics from my Ph.D. at the <strong>University of Strathclyde</strong>. My research focused on creating comprehensive simulations of Free-Electron Lasers (FELs) by integrating FEL dynamics with optical propagation codes. This allowed me to validate novel models for cavity-based FELs, providing key insights for developing next-generation light sources.
+                    </p>
                 </div>
             </div>
         </section>
@@ -64,7 +114,7 @@
     <!-- Footer -->
     <footer>
         <div class="container">
-            <p>&copy; 2025 Synchrotron Light Research Institute (Public Organization). All Rights Reserved.</p>
+            <p>&copy; 2025 P. Pongchalee. All Rights Reserved.</p>
         </div>
     </footer>
 

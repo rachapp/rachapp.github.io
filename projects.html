@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projects | Dr. [Your Name]</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <style>
+        /* --- Additional Styles for Clickable Cards & Modals --- */
+        .team-member-card {
+            cursor: pointer; /* Indicates the card is clickable */
+        }
+
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto; /* Adjusted margin for better centering */
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 800px;
+            position: relative;
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-close {
+            color: #aaa;
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .modal-close:hover,
+        .modal-close:focus {
+            color: black;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .modal-header h2 {
+            margin: 0;
+        }
+        .modal-header .role {
+             color: var(--text-light);
+        }
+
+        .modal-body h3 {
+            color: var(--primary-color);
+            margin-top: 20px;
+            margin-bottom: 10px;
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 5px;
+        }
+
+        .modal-body ul {
+            list-style-position: inside;
+            padding-left: 10px;
+        }
+
+        body.modal-open {
+            overflow: hidden; /* Prevents background scrolling when modal is open */
+        }
+
+        @keyframes fadeIn {
+            from {opacity: 0; transform: translateY(-20px);}
+            to {opacity: 1; transform: translateY(0);}
+        }
+    </style>
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="container">
+            <a href="index.html" class="logo">Dr. [Your Name]</a>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="research.html">Research</a></li>
+                    <li><a href="projects.html" class="active">Projects</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="page-header">
+            <h1>Research & Development Projects</h1>
+        </section>
+
+        <section id="team-members">
+             <div class="container">
+                <p class="section-subtitle">Here are some of the key research and development projects I am currently involved in or have led. Click on any project to learn more.</p>
+                <div class="grid">
+                    <div class="card team-member-card" data-modal-target="#modal-proj1">
+                        <div class="card-content">
+                            <h3>In-Situ XAS Chamber Development</h3>
+                            <p class="role">Lead Designer & Scientist</p>
+                        </div>
+                    </div>
+                    <div class="card team-member-card" data-modal-target="#modal-proj2">
+                         <div class="card-content">
+                            <h3>Automated Data Analysis Pipeline</h3>
+                            <p class="role">Python | Data Analysis</p>
+                        </div>
+                    </div>
+                    <div class="card team-member-card" data-modal-target="#modal-proj3">
+                         <div class="card-content">
+                            <h3>[Your Third Project Title]</h3>
+                            <p class="role">Key Technologies Used</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Dr. [Your Name]. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <div id="modals-container">
+        <div class="modal" id="modal-proj1">
+            <div class="modal-content">
+                <span class="modal-close">&times;</span>
+                <div class="modal-header" style="align-items: flex-start;">
+                    <i class="fas fa-cogs" style="font-size: 50px; margin-right: 20px; color: var(--primary-color);"></i>
+                    <div>
+                        <h2>In-Situ XAS Chamber Development</h2>
+                        <p class="role">Lead Designer & Scientist</p>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <h3>Project Goal</h3>
+                    <p>[Detailed description of the project. What was the objective? e.g., To design and commission a new experimental chamber for conducting X-ray Absorption Spectroscopy on catalytic materials under realistic operating conditions (high temperature and pressure).]</p>
+                    <h3>My Contributions</h3>
+                    <ul>
+                        <li>Led the mechanical design using [Software].</li>
+                        <li>Developed the control software using [Language/Framework].</li>
+                        <li>Successfully commissioned the chamber, leading to a 50% increase in experimental throughput.</li>
+                    </ul>
+                    <h3>Technologies</h3>
+                    <p>LabVIEW, Python, EPICS, 3D-CAD Design</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal" id="modal-proj2">
+            <div class="modal-content">
+                <span class="modal-close">&times;</span>
+                 <div class="modal-header" style="align-items: flex-start;">
+                    <i class="fas fa-chart-line" style="font-size: 50px; margin-right: 20px; color: var(--primary-color);"></i>
+                    <div>
+                        <h2>Automated Data Analysis Pipeline</h2>
+                        <p class="role">Python Developer</p>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <h3>Project Goal</h3>
+                    <p>[Detailed description. e.g., To create a robust, automated data processing and analysis pipeline for XAS data, reducing user analysis time from hours to minutes.]</p>
+                    <h3>My Contributions</h3>
+                    <ul>
+                        <li>Developed a suite of Python libraries for data normalization, background subtraction, and preliminary fitting.</li>
+                        <li>Packaged the tool for easy distribution to users.</li>
+                    </ul>
+                    <h3>Technologies</h3>
+                    <p>Python, Pandas, NumPy, Scikit-learn, Larch</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="modal" id="modal-proj3">
+            <div class="modal-content">
+                <span class="modal-close">&times;</span>
+                 <div class="modal-header" style="align-items: flex-start;">
+                    <i class="fas fa-lightbulb" style="font-size: 50px; margin-right: 20px; color: var(--primary-color);"></i>
+                    <div>
+                        <h2>[Your Third Project Title]</h2>
+                        <p class="role">Your Role</p>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <h3>Project Goal</h3>
+                    <p>[Detailed description of your third project.]</p>
+                    <h3>My Contributions</h3>
+                    <ul>
+                        <li>[Contribution 1]</li>
+                        <li>[Contribution 2]</li>
+                    </ul>
+                    <h3>Technologies</h3>
+                    <p>[Technologies Used]</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const openModalTriggers = document.querySelectorAll('[data-modal-target]');
+            const closeModalTriggers = document.querySelectorAll('.modal-close');
+            
+            openModalTriggers.forEach(trigger => {
+                trigger.addEventListener('click', () => {
+                    const modal = document.querySelector(trigger.dataset.modalTarget);
+                    openModal(modal);
+                });
+            });
+
+            function openModal(modal) {
+                if (modal == null) return;
+                modal.style.display = 'block';
+                document.body.classList.add('modal-open');
+            }
+
+            function closeModal(modal) {
+                if (modal == null) return;
+                modal.style.display = 'none';
+                document.body.classList.remove('modal-open');
+            }
+            
+            // Add closing functionality to all close buttons
+            closeModalTriggers.forEach(button => {
+                button.addEventListener('click', () => {
+                    const modal = button.closest('.modal');
+                    closeModal(modal);
+                });
+            });
+
+            // Close modal if user clicks on the overlay
+            window.addEventListener('click', (event) => {
+                const openModal = document.querySelector('.modal[style*="display: block"]');
+                if (event.target === openModal) {
+                    closeModal(openModal);
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
