@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Interactive Electron Radiation with Magnetic Field</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            html, body {
+                margin: 0;
+                padding: 0;
+                overflow: hidden;
+                background-color: #000;
+            }
+            canvas {
+                display: block;
+                cursor: default;
+            }
+            #controls {
+                position: absolute;
+                top: 10px;
+                left: 10px;
+                color: #fff;
+                font-family: monospace;
+                font-size: 12px;
+                background: rgba(0,0,0,0.7);
+                padding: 10px;
+                border-radius: 8px;
+                z-index: 100;
+                width: 20vw;
+                min-width: 200px;
+                max-width: 280px;
+                box-sizing: border-box;
+            }
+            .control-button {
+                background-color: #333;
+                border: 1px solid #888;
+                color: white;
+                padding: 6px 10px;
+                margin-top: 8px;
+                cursor: pointer;
+                border-radius: 4px;
+                width: 100%;
+                box-sizing: border-box;
+                text-align: center;
+                transition: background-color 0.2s, border-color 0.2s;
+            }
+            .control-button:hover {
+                background-color: #555;
+            }
+            .control-button:disabled {
+                background-color: #222;
+                color: #666;
+                cursor: not-allowed;
+            }
+            .control-button.active-blue {
+                background-color: #1c3a5e;
+                border-color: #88aaff;
+            }
+            .control-button.active-red {
+                background-color: #5e1c1c;
+                border-color: #ff8888;
+            }
+            .control-button.remove-mode {
+                background-color: #882222;
+                border-color: #ffaaaa;
+            }
+            .slider-container {
+                margin-top: 10px;
+                display: flex;
+                align-items: center;
+                flex-wrap: wrap;
+                justify-content: space-between;
+            }
+            .slider-container label {
+                flex-basis: 70px;
+                flex-shrink: 0;
+            }
+            .slider-container input[type="range"] {
+                flex-grow: 1;
+                min-width: 50px;
+                margin: 0 8px;
+            }
+            .slider-container span {
+                flex-basis: 45px;
+                text-align: right;
+                flex-shrink: 0;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="controls">
+            Use Arrow Keys to Move
+            <div class="slider-container">
+                <label for="betaSlider">β:</label>
+                <input type="range" id="betaSlider" min="0" max="0.9999" step="0.0001" value="0.8000">
+                <span id="betaValue">0.8000</span>
+            </div>
+            <div class="slider-container">
+                <label for="intensitySlider">Intensity:</label>
+                <input type="range" id="intensitySlider" min="1e-4" max="1e-2" step="1e-4" value="1e-3">
+                <span id="intensityValue">1.5e-3</span>
+            </div>
+             <div class="slider-container">
+                <label for="zoomSlider">Zoom:</label>
+                <input type="range" id="zoomSlider" min="0.1" max="2.0" step="0.1" value="0.6">
+                <span id="zoomValue">0.6x</span>
+            </div>
+            <div class="slider-container">
+                <label for="bFieldSlider">B-Field (T):</label>
+                <input type="range" id="bFieldSlider" min="0.001" max="0.01" step="0.0001" value="0.005">
+                <span id="bFieldValue">0.005</span>
+            </div>
+            <button id="addBlueMagnetButton" class="control-button">Add Blue Magnet (+B)</button>
+            <button id="addRedMagnetButton" class="control-button">Add Red Magnet (-B)</button>
+            <button id="removeMagnetButton" class="control-button">Remove Magnet</button>
+            <button id="toggleButton" class="control-button">Show Field Intensity</button>
+            <button id="resetButton" class="control-button">Reset</button>
+        </div>
+
+        <script id="vertexShader" type="x-shader/x-vertex">
+            void main() {
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+        </script>
+
+        <script id="fragmentShader" type="x-shader/x-fragment">
+            #define MAX_MAGNETS 5
+
+            uniform vec2 u_resolution;
+            uniform float u_time;
+            uniform sampler2D u_history_texture;
+            uniform float u_speed_of_light;
+            uniform float u_field_amplitude;
+            uniform float u_zoom;
+            uniform int u_history_size;
+            uniform vec2 u_electron_screen_pos;
+            uniform int u_display_mode;
+
+            uniform bool u_b_field_blue_visible[MAX_MAGNETS];
+            uniform vec2 u_b_field_blue_pos[MAX_MAGNETS];
+            uniform vec2 u_b_field_blue_size[MAX_MAGNETS];
+            uniform bool u_b_field_red_visible[MAX_MAGNETS];
+            uniform vec2 u_b_field_red_pos[MAX_MAGNETS];
+            uniform vec2 u_b_field_red_size[MAX_MAGNETS];
+
+            const int SOLVER_ITERATIONS = 5;
+            const int BINARY_SEARCH_ITERATIONS = 10;
+            const float ABSORPTION_START = 0.9;
+            const float PI = 3.14159265359;
+            const float ELECTRON_RADIUS = 2.0;
+            const float B_FIELD_BORDER_THICKNESS = 2.0;
+
+            void get_history_state(int index, out vec2 pos, out vec2 vel, out vec2 acc, out float t) {
+                vec4 data1 = texelFetch(u_history_texture, ivec2(index, 0), 0);
+                vec4 data2 = texelFetch(u_history_texture, ivec2(index, 1), 0);
+                pos = data1.xy;
+                vel = data1.zw;
+                acc = data2.xy;
+                t = data2.z;
+            }
+            
+            int get_index_for_time(float t) {
+                int low = 0;
+                int high = u_history_size - 1;
+                int best_index = u_history_size - 1;
+
+                for (int i = 0; i < BINARY_SEARCH_ITERATIONS; i++) {
+                    if (low > high) break;
+                    int mid = low + (high - low) / 2;
+                    
+                    vec4 data2 = texelFetch(u_history_texture, ivec2(mid, 1), 0);
+                    float mid_time = data2.z;
+
+                    if (mid_time >= t) {
+                        best_index = mid;
+                        low = mid + 1;
+                    } else {
+                        high = mid - 1;
+                    }
+                }
+                return best_index;
+            }
+
+            void get_interpolated_state(float t, out vec2 pos, out vec2 vel, out vec2 acc) {
+                int idx1 = get_index_for_time(t);
+                int idx2 = min(u_history_size - 1, idx1 + 1);
+
+                vec2 p1, v1, a1; float t1;
+                vec2 p2, v2, a2; float t2;
+                get_history_state(idx1, p1, v1, a1, t1);
+                get_history_state(idx2, p2, v2, a2, t2);
+
+                if (abs(t1 - t2) < 1e-6) {
+                    pos = p1; vel = v1; acc = a1;
+                    return;
+                }
+
+                float alpha = (t1 - t) / (t1 - t2);
+                alpha = clamp(alpha, 0.0, 1.0);
+
+                pos = mix(p1, p2, alpha);
+                vel = mix(v1, v2, alpha);
+                acc = mix(a1, a2, alpha);
+            }
+
+            vec3 hsv2rgb(vec3 c) {
+                vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+                vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+                return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+            }
+
+            vec3 colormap(float value) {
+                value = clamp(value, 0.0, 1.0);
+                vec3 black = vec3(0.0, 0.0, 0.0);
+                vec3 red = vec3(1.0, 0.0, 0.0);
+                vec3 yellow = vec3(1.0, 1.0, 0.0);
+                vec3 white = vec3(1.0, 1.0, 1.0);
+
+                if (value < 0.33) return mix(black, red, value / 0.33);
+                if (value < 0.66) return mix(red, yellow, (value - 0.33) / 0.33);
+                return mix(yellow, white, (value - 0.66) / 0.34);
+            }
+
+            vec4 draw_b_field_box(vec4 current_color, vec2 p_world, vec2 box_pos, vec2 box_size, vec3 box_base_color) {
+                vec2 half_size = box_size / 2.0;
+                vec2 p_local = p_world - box_pos;
+                
+                if (abs(p_local.x) < half_size.x && abs(p_local.y) < half_size.y) {
+                    float box_alpha = 0.25;
+
+                    float border_thickness_world = B_FIELD_BORDER_THICKNESS / u_zoom;
+                    if (abs(p_local.x) > half_size.x - border_thickness_world || abs(p_local.y) > half_size.y - border_thickness_world) {
+                        box_alpha = 0.75;
+                    }
+                    
+                    vec2 norm_p = p_local / box_size + 0.5;
+                    float gradient = sin(norm_p.x * PI) * sin(norm_p.y * PI);
+                    
+                    return mix(current_color, vec4(box_base_color, 1.0), box_alpha * (0.5 + 0.5 * gradient));
+                }
+                return current_color;
+            }
+
+            void main() {
+                vec2 p_world = (gl_FragCoord.xy - u_resolution.xy / 2.0) / u_zoom;
+                vec2 totalField = vec2(0.0, 0.0);
+                bool state_found = false;
+
+                vec2 retarded_pos, retarded_vel, retarded_acc;
+                
+                vec2 pos_latest; float t_latest;
+                get_history_state(0, pos_latest, retarded_vel, retarded_acc, t_latest);
+                
+                float R_guess = length(p_world - pos_latest);
+                float t_ret = u_time - R_guess / u_speed_of_light;
+
+                for (int i = 0; i < SOLVER_ITERATIONS; i++) {
+                    vec2 pos_guess;
+                    get_interpolated_state(t_ret, pos_guess, retarded_vel, retarded_acc);
+                    R_guess = length(p_world - pos_guess);
+                    t_ret = u_time - R_guess / u_speed_of_light;
+                }
+
+                float t_oldest;
+                get_history_state(u_history_size - 1, retarded_pos, retarded_vel, retarded_acc, t_oldest);
+
+                if (t_ret >= t_oldest && t_ret <= u_time) {
+                    get_interpolated_state(t_ret, retarded_pos, retarded_vel, retarded_acc);
+                    state_found = true;
+                }
+                
+                if (state_found) {
+                    vec2 R_vec = p_world - retarded_pos;
+                    float R_mag = length(R_vec);
+
+                    if (R_mag > 1.0) {
+                        vec2 beta_vec = retarded_vel / u_speed_of_light;
+                        float beta_sq = dot(beta_vec, beta_vec);
+                        
+                        if (beta_sq < 0.99999) {
+                            vec2 n_vec = normalize(R_vec);
+                            float kappa = 1.0 - dot(n_vec, beta_vec);
+                            
+                            vec2 n_minus_beta = n_vec - beta_vec;
+                            vec2 velField = n_minus_beta * (1.0 - beta_sq) / (pow(kappa, 3.0) * R_mag * R_mag);
+                            
+                            vec2 radField = vec2(0.0);
+                            if (length(retarded_acc) > 1e-6) {
+                                vec2 beta_dot = retarded_acc / u_speed_of_light;
+                                vec2 term1 = n_vec * dot(n_minus_beta, beta_dot);
+                                vec2 term2 = n_minus_beta * dot(n_vec, beta_dot);
+                                vec2 cross_term_vector = term1 - term2;
+                                radField = cross_term_vector / (pow(kappa, 3.0) * R_mag);
+                            }
+                            
+                            totalField = velField + radField;
+                        }
+                    }
+                }
+                
+                vec4 finalColor;
+                if (u_display_mode == 0) {
+                    float magnitude = length(totalField);
+                    float lightness = magnitude / u_field_amplitude;
+                    lightness = lightness / (1.0 + lightness);
+
+                    float angle = atan(totalField.y, totalField.x);
+                    float hue = angle / (2.0 * PI) + 0.5;
+
+                    vec3 color = hsv2rgb(vec3(hue, 1.0, lightness));
+
+                    if (lightness < 0.01) { color = vec3(0.0); }
+                    finalColor = vec4(color, 1.0);
+
+                } else {
+                    float magnitude = length(totalField);
+                    float scaledMagnitude = magnitude / u_field_amplitude;
+                    float normalizedValue = scaledMagnitude / (1.0 + scaledMagnitude);
+                    finalColor = vec4(colormap(normalizedValue), 1.0);
+                }
+
+                vec2 screen_p = gl_FragCoord.xy - u_resolution.xy * 0.5;
+                vec2 norm_p = abs(screen_p) / (u_resolution.xy * 0.5);
+                float max_dist = max(norm_p.x, norm_p.y);
+                float absorption = 1.0 - smoothstep(ABSORPTION_START, 1.0, max_dist);
+                
+                gl_FragColor = finalColor * absorption;
+
+                for (int i = 0; i < MAX_MAGNETS; i++) {
+                    if (u_b_field_blue_visible[i]) {
+                        gl_FragColor = draw_b_field_box(gl_FragColor, p_world, u_b_field_blue_pos[i], u_b_field_blue_size[i], vec3(0.0, 0.3, 1.0));
+                    }
+                    if (u_b_field_red_visible[i]) {
+                        gl_FragColor = draw_b_field_box(gl_FragColor, p_world, u_b_field_red_pos[i], u_b_field_red_size[i], vec3(1.0, 0.2, 0.0));
+                    }
+                }
+
+                float dist_to_electron = distance(gl_FragCoord.xy, u_electron_screen_pos);
+                if (dist_to_electron < ELECTRON_RADIUS) {
+                    gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+                }
+            }
+        </script>
+
+        <script type="importmap">
+            {
+                "imports": {
+                    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" 
+                }
+            }
+        </script>
+
+        <script type="module">
+
+            import * as THREE from 'three';
+
+            const MAX_MAGNETS = 5;
+            const HISTORY_SIZE = 500;
+            const SPEED_OF_LIGHT = 1000;
+            const THRUST_FORCE = 1000.0;
+            const DAMPING = 1.0;
+            let FIELD_AMPLITUDE = 1e-3;
+            const LORENTZ_SCALE = -3000.0;
+            const HANDLE_RADIUS = 8.0;
+
+            let scene, camera, renderer;
+            let shaderMaterial;
+            let historyData, historyTexture;
+            const history = [];
+            const clock = new THREE.Clock();
+            
+            let B_STRENGTH = 0.005;
+            let bFieldStatesBlue = [];
+            let bFieldStatesRed = [];
+            let removeModeActive = false;
+            
+            let dragState = {
+                isDragging: false,
+                activeTarget: null,
+                activeHandle: null,
+                initialMousePos: new THREE.Vector2(),
+                initialBoxPos: new THREE.Vector2(),
+                initialBoxSize: new THREE.Vector2()
+            };
+            
+            let electronState = {
+                pos: new THREE.Vector2(0, 0),
+                vel: new THREE.Vector2(0, 0)
+            };
+            const keys = { up: false, down: false, left: false, right: false };
+            let BETA = 0.8000;
+            let DISPLAY_MODE = 0;
+            let ZOOM = 0.6;
+
+            function initializeMagnetArrays() {
+                for (let i = 0; i < MAX_MAGNETS; i++) {
+                    bFieldStatesBlue.push({ id: `b${i}`, visible: false, pos: new THREE.Vector2(), size: new THREE.Vector2() });
+                    bFieldStatesRed.push({ id: `r${i}`, visible: false, pos: new THREE.Vector2(), size: new THREE.Vector2() });
+                }
+            }
+
+            function resetSimulation() {
+                electronState.pos.set(0, 0);
+                electronState.vel.set(0, 0);
+                
+                history.length = 0;
+                if (!clock.running) clock.start();
+                const resetTime = clock.getElapsedTime();
+                const initialState = { 
+                    time: resetTime, 
+                    pos: new THREE.Vector2(0, 0), 
+                    vel: new THREE.Vector2(0, 0), 
+                    acc: new THREE.Vector2() 
+                };
+                for (let i = 0; i < HISTORY_SIZE; i++) {
+                    const staticState = { ...initialState, time: resetTime - (i * 0.016) };
+                    history.push(staticState);
+                }
+                updateHistoryTexture();
+
+                bFieldStatesBlue.forEach((state, i) => { if (state.visible) setInitialBFieldState(state, 1, i); });
+                bFieldStatesRed.forEach((state, i) => { if (state.visible) setInitialBFieldState(state, -1, i); });
+            }
+
+            function setupScene() {
+                scene = new THREE.Scene();
+                camera = new THREE.OrthographicCamera( -1, 1, 1, -1, 0, 1 );
+
+                renderer = new THREE.WebGLRenderer({ antialias: true });
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                document.body.appendChild(renderer.domElement);
+
+                historyData = new Float32Array(HISTORY_SIZE * 2 * 4);
+                historyTexture = new THREE.DataTexture(historyData, HISTORY_SIZE, 2, THREE.RGBAFormat, THREE.FloatType);
+
+                const uniforms = {
+                    u_resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+                    u_time: { value: 0.0 },
+                    u_history_texture: { value: historyTexture },
+                    u_speed_of_light: { value: SPEED_OF_LIGHT },
+                    u_field_amplitude: { value: FIELD_AMPLITUDE },
+                    u_display_mode: { value: DISPLAY_MODE },
+                    u_zoom: { value: ZOOM },
+                    u_history_size: { value: HISTORY_SIZE },
+                    u_electron_screen_pos: { value: new THREE.Vector2() },
+                    u_b_field_blue_visible: { value: bFieldStatesBlue.map(s => s.visible) },
+                    u_b_field_blue_pos: { value: bFieldStatesBlue.map(s => s.pos) },
+                    u_b_field_blue_size: { value: bFieldStatesBlue.map(s => s.size) },
+                    u_b_field_red_visible: { value: bFieldStatesRed.map(s => s.visible) },
+                    u_b_field_red_pos: { value: bFieldStatesRed.map(s => s.pos) },
+                    u_b_field_red_size: { value: bFieldStatesRed.map(s => s.size) }
+                };
+
+                shaderMaterial = new THREE.ShaderMaterial({
+                    uniforms: uniforms,
+                    vertexShader: document.getElementById('vertexShader').textContent,
+                    fragmentShader: document.getElementById('fragmentShader').textContent,
+                });
+
+                const plane = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), shaderMaterial);
+                scene.add(plane);
+
+                setupEventListeners();
+            }
+
+            function setupEventListeners() {
+                document.getElementById('betaSlider').addEventListener('input', (e) => {
+                    BETA = parseFloat(e.target.value);
+                    document.getElementById('betaValue').textContent = BETA.toFixed(4);
+                });
+                document.getElementById('intensitySlider').addEventListener('input', (e) => {
+                    FIELD_AMPLITUDE = parseFloat(e.target.value);
+                    document.getElementById('intensityValue').textContent = FIELD_AMPLITUDE.toExponential(1);
+                });
+                document.getElementById('zoomSlider').addEventListener('input', (e) => {
+                    ZOOM = parseFloat(e.target.value);
+                    document.getElementById('zoomValue').textContent = ZOOM.toFixed(1) + 'x';
+                });
+                document.getElementById('toggleButton').addEventListener('click', () => {
+                    DISPLAY_MODE = 1 - DISPLAY_MODE;
+                    document.getElementById('toggleButton').textContent = DISPLAY_MODE === 0 ? 'Show Field Intensity' : 'Show Field Direction';
+                });
+                document.getElementById('bFieldSlider').addEventListener('input', (e) => {
+                    B_STRENGTH = parseFloat(e.target.value);
+                    document.getElementById('bFieldValue').textContent = B_STRENGTH.toFixed(4);
+                });
+                document.getElementById('addBlueMagnetButton').addEventListener('click', () => addBField('blue'));
+                document.getElementById('addRedMagnetButton').addEventListener('click', () => addBField('red'));
+                document.getElementById('removeMagnetButton').addEventListener('click', toggleRemoveMode);
+                document.getElementById('resetButton').addEventListener('click', resetSimulation);
+
+                window.addEventListener('keydown', (e) => {
+                    if (e.key === 'ArrowUp') keys.up = true;
+                    if (e.key === 'ArrowDown') keys.down = true;
+                    if (e.key === 'ArrowLeft') keys.left = true;
+                    if (e.key === 'ArrowRight') keys.right = true;
+                });
+                window.addEventListener('keyup', (e) => {
+                    if (e.key === 'ArrowUp') keys.up = false;
+                    if (e.key === 'ArrowDown') keys.down = false;
+                    if (e.key === 'ArrowLeft') keys.left = false;
+                    if (e.key === 'ArrowRight') keys.right = false;
+                });
+                
+                renderer.domElement.addEventListener('pointerdown', onPointerDown, false);
+                renderer.domElement.addEventListener('pointermove', onPointerMove, false);
+                renderer.domElement.addEventListener('pointerup', onPointerUp, false);
+                window.addEventListener('resize', onWindowResize);
+            }
+
+            function setInitialBFieldState(state, side, index) {
+                const worldWidth = window.innerWidth / ZOOM;
+                const worldHeight = window.innerHeight / ZOOM;
+                state.size.set(worldWidth * 0.2, worldHeight * 0.4);
+                const xOffset = (index % 3) * 50 / ZOOM - (50 / ZOOM);
+                state.pos.set(side * worldWidth * 0.25 + xOffset, 0);
+            }
+
+            function addBField(color) {
+                const isBlue = color === 'blue';
+                const states = isBlue ? bFieldStatesBlue : bFieldStatesRed;
+                const firstInactive = states.find(s => !s.visible);
+
+                if (firstInactive) {
+                    firstInactive.visible = true;
+                    setInitialBFieldState(firstInactive, isBlue ? 1 : -1, states.filter(s => s.visible).length);
+                    updateAddButtonStates();
+                }
+            }
+            
+            function toggleRemoveMode() {
+                removeModeActive = !removeModeActive;
+                const button = document.getElementById('removeMagnetButton');
+                button.classList.toggle('remove-mode', removeModeActive);
+                button.textContent = removeModeActive ? 'Cancel Remove' : 'Remove Magnet';
+            }
+
+            function updateAddButtonStates() {
+                const blueCount = bFieldStatesBlue.filter(s => s.visible).length;
+                const redCount = bFieldStatesRed.filter(s => s.visible).length;
+                document.getElementById('addBlueMagnetButton').disabled = blueCount >= MAX_MAGNETS;
+                document.getElementById('addRedMagnetButton').disabled = redCount >= MAX_MAGNETS;
+            }
+            
+            function screenToWorld(screenVec) {
+                const worldVec = new THREE.Vector2();
+                worldVec.x = (screenVec.x - window.innerWidth / 2);
+                worldVec.y = -(screenVec.y - window.innerHeight / 2);
+                return worldVec.divideScalar(ZOOM);
+            }
+
+            function getHandlePositions(state) {
+                const halfSize = state.size.clone().divideScalar(2);
+                return {
+                    topLeft: state.pos.clone().add(new THREE.Vector2(-halfSize.x, halfSize.y)),
+                    topRight: state.pos.clone().add(new THREE.Vector2(halfSize.x, halfSize.y)),
+                    bottomLeft: state.pos.clone().add(new THREE.Vector2(-halfSize.x, -halfSize.y)),
+                    bottomRight: state.pos.clone().add(new THREE.Vector2(halfSize.x, -halfSize.y)),
+                };
+            }
+
+            function getActiveHandle(worldMousePos, state) {
+                if (!state.visible) return null;
+                const handlePositions = getHandlePositions(state);
+                const handleRadiusWorld = HANDLE_RADIUS / ZOOM;
+
+                for (const [name, pos] of Object.entries(handlePositions)) {
+                    if (worldMousePos.distanceTo(pos) < handleRadiusWorld) {
+                        return { target: state, handle: name };
+                    }
+                }
+                
+                const halfSize = state.size.clone().divideScalar(2);
+                if (Math.abs(worldMousePos.x - state.pos.x) < halfSize.x && Math.abs(worldMousePos.y - state.pos.y) < halfSize.y) {
+                    return { target: state, handle: 'center' };
+                }
+
+                return null;
+            }
+
+            function onPointerDown(event) {
+                const worldMousePos = screenToWorld(new THREE.Vector2(event.clientX, event.clientY));
+                
+                const allStates = [...bFieldStatesRed, ...bFieldStatesBlue];
+                let activeTarget = null;
+
+                for (const state of allStates) {
+                    const handleInfo = getActiveHandle(worldMousePos, state);
+                    if (handleInfo) {
+                        activeTarget = handleInfo;
+                    }
+                }
+
+                if (removeModeActive && activeTarget) {
+                    activeTarget.target.visible = false;
+                    toggleRemoveMode();
+                    updateAddButtonStates();
+                    return;
+                }
+                
+                if (activeTarget) {
+                    dragState.isDragging = true;
+                    dragState.activeTarget = activeTarget.target;
+                    dragState.activeHandle = activeTarget.handle;
+                    dragState.initialMousePos.copy(worldMousePos);
+                    dragState.initialBoxPos.copy(activeTarget.target.pos);
+                    dragState.initialBoxSize.copy(activeTarget.target.size);
+                }
+            }
+
+            function onPointerMove(event) {
+                const worldMousePos = screenToWorld(new THREE.Vector2(event.clientX, event.clientY));
+
+                if (!dragState.isDragging) {
+                    const allStates = [...bFieldStatesRed, ...bFieldStatesBlue];
+                    let cursorSet = false;
+                    for (const state of allStates) {
+                        if (getActiveHandle(worldMousePos, state)) {
+                            renderer.domElement.style.cursor = 'move';
+                            cursorSet = true;
+                            break;
+                        }
+                    }
+                    if (!cursorSet) renderer.domElement.style.cursor = 'default';
+                    return;
+                }
+                
+                const mouseDelta = worldMousePos.clone().sub(dragState.initialMousePos);
+                const targetState = dragState.activeTarget;
+
+                if (dragState.activeHandle === 'center') {
+                    targetState.pos.copy(dragState.initialBoxPos).add(mouseDelta);
+                } else {
+                    const bPos = dragState.initialBoxPos;
+                    const bSize = dragState.initialBoxSize;
+                    let xFactor = 0, yFactor = 0, wFactor = 0, hFactor = 0;
+
+                    if (dragState.activeHandle.includes('Left'))  { wFactor = -1; xFactor = 0.5; }
+                    if (dragState.activeHandle.includes('Right')) { wFactor =  1; xFactor = 0.5; }
+                    if (dragState.activeHandle.includes('bottom')){ hFactor = -1; yFactor = 0.5; }
+                    if (dragState.activeHandle.includes('top'))   { hFactor =  1; yFactor = 0.5; }
+                    
+                    const newWidth = bSize.x + wFactor * mouseDelta.x;
+                    const newHeight = bSize.y + hFactor * mouseDelta.y;
+                    
+                    targetState.size.set(Math.max(20 / ZOOM, newWidth), Math.max(20 / ZOOM, newHeight));
+                    targetState.pos.x = bPos.x + xFactor * mouseDelta.x;
+                    targetState.pos.y = bPos.y + yFactor * mouseDelta.y;
+                }
+            }
+
+            function onPointerUp() {
+                dragState.isDragging = false;
+                dragState.activeHandle = null;
+                dragState.activeTarget = null;
+                renderer.domElement.style.cursor = 'default';
+            }
+
+            function updateHistoryTexture() {
+                for(let i = 0; i < history.length; i++) {
+                    const state = history[i];
+                    const baseIndex = i * 4;
+                    historyData[baseIndex + 0] = state.pos.x;
+                    historyData[baseIndex + 1] = state.pos.y;
+                    historyData[baseIndex + 2] = state.vel.x;
+                    historyData[baseIndex + 3] = state.vel.y;
+                    const secondRowOffset = HISTORY_SIZE * 4;
+                    historyData[secondRowOffset + baseIndex + 0] = state.acc.x;
+                    historyData[secondRowOffset + baseIndex + 1] = state.acc.y;
+                    historyData[secondRowOffset + baseIndex + 2] = state.time;
+                    historyData[secondRowOffset + baseIndex + 3] = 0.0;
+                }
+                historyTexture.needsUpdate = true;
+            }
+
+            function applyLorentzForce(bState, sign, deltaTime) {
+                if (!bState.visible) return;
+
+                const ePosWorld = electronState.pos;
+                const bPosWorld = bState.pos;
+                const bHalfSizeWorld = bState.size.clone().divideScalar(2);
+
+                const isInside = ePosWorld.x > bPosWorld.x - bHalfSizeWorld.x && ePosWorld.x < bPosWorld.x + bHalfSizeWorld.x &&
+                                    ePosWorld.y > bPosWorld.y - bHalfSizeWorld.y && ePosWorld.y < bPosWorld.y + bHalfSizeWorld.y;
+
+                if (isInside) {
+                    const vSq = electronState.vel.lengthSq();
+                    if (vSq > 1e-6) {
+                        const normX = (ePosWorld.x - bPosWorld.x) / bState.size.x + 0.5;
+                        const normY = (ePosWorld.y - bPosWorld.y) / bState.size.y + 0.5;
+                        const gradientScale = Math.sin(normX * Math.PI) * Math.sin(normY * Math.PI);
+                        const effectiveB = B_STRENGTH * gradientScale * sign;
+
+                        const gamma = 1.0 / Math.sqrt(1.0 - Math.min(vSq, SPEED_OF_LIGHT**2 * 0.999999) / SPEED_OF_LIGHT**2);
+                        const lorentzAcc = new THREE.Vector2(electronState.vel.y, -electronState.vel.x);
+                        lorentzAcc.multiplyScalar((LORENTZ_SCALE * effectiveB) / gamma);
+                        electronState.vel.add(lorentzAcc.multiplyScalar(deltaTime));
+                    }
+                }
+            }
+
+            function animate() {
+                requestAnimationFrame(animate);
+
+                const deltaTime = Math.min(clock.getDelta(), 0.05);
+                const elapsedTime = clock.getElapsedTime();
+                const prevVel = electronState.vel.clone();
+
+                const moveVector = new THREE.Vector2(0, 0);
+                if (keys.up) moveVector.y += 1;
+                if (keys.down) moveVector.y -= 1;
+                if (keys.left) moveVector.x -= 1;
+                if (keys.right) moveVector.x += 1;
+
+                if (moveVector.lengthSq() > 0) {
+                    moveVector.normalize();
+                    electronState.vel.add(moveVector.multiplyScalar(THRUST_FORCE * deltaTime));
+                }
+
+                bFieldStatesBlue.forEach(state => applyLorentzForce(state, 1.0, deltaTime));
+                bFieldStatesRed.forEach(state => applyLorentzForce(state, -1.0, deltaTime));
+                
+                electronState.vel.multiplyScalar(1.0 - DAMPING * deltaTime);
+                const maxSpeed = BETA * SPEED_OF_LIGHT;
+                if (electronState.vel.length() > maxSpeed) {
+                    electronState.vel.normalize().multiplyScalar(maxSpeed);
+                }
+                electronState.pos.add(electronState.vel.clone().multiplyScalar(deltaTime));
+                
+                const halfW = window.innerWidth / 2 / ZOOM;
+                const halfH = window.innerHeight / 2 / ZOOM;
+                electronState.pos.x = Math.max(-halfW, Math.min(halfW, electronState.pos.x));
+                electronState.pos.y = Math.max(-halfH, Math.min(halfH, electronState.pos.y));
+
+                const currentAcc = new THREE.Vector2().subVectors(electronState.vel, prevVel).divideScalar(Math.max(deltaTime, 1e-6));
+                history.unshift({ time: elapsedTime, pos: electronState.pos.clone(), vel: electronState.vel.clone(), acc: currentAcc.clone() });
+                if (history.length > HISTORY_SIZE) history.pop();
+                updateHistoryTexture();
+
+                const screenX = (electronState.pos.x * ZOOM) + window.innerWidth / 2;
+                const screenY = (electronState.pos.y * ZOOM) + window.innerHeight / 2;
+                shaderMaterial.uniforms.u_electron_screen_pos.value.set(screenX, screenY);
+                shaderMaterial.uniforms.u_time.value = elapsedTime;
+                shaderMaterial.uniforms.u_display_mode.value = DISPLAY_MODE;
+                shaderMaterial.uniforms.u_field_amplitude.value = FIELD_AMPLITUDE;
+                shaderMaterial.uniforms.u_zoom.value = ZOOM;
+
+                for (let i=0; i<MAX_MAGNETS; i++) {
+                    shaderMaterial.uniforms.u_b_field_blue_visible.value[i] = bFieldStatesBlue[i].visible;
+                    shaderMaterial.uniforms.u_b_field_blue_pos.value[i].copy(bFieldStatesBlue[i].pos);
+                    shaderMaterial.uniforms.u_b_field_blue_size.value[i].copy(bFieldStatesBlue[i].size);
+                    shaderMaterial.uniforms.u_b_field_red_visible.value[i] = bFieldStatesRed[i].visible;
+                    shaderMaterial.uniforms.u_b_field_red_pos.value[i].copy(bFieldStatesRed[i].pos);
+                    shaderMaterial.uniforms.u_b_field_red_size.value[i].copy(bFieldStatesRed[i].size);
+                }
+                
+                renderer.render(scene, camera);
+            }
+
+            function onWindowResize() {
+                const width = window.innerWidth;
+                const height = window.innerHeight;
+                renderer.setSize(width, height);
+                shaderMaterial.uniforms.u_resolution.value.set(width, height);
+            }
+
+            // --- Start Simulation ---
+            initializeMagnetArrays();
+            setupScene();
+            onWindowResize();
+            clock.start();
+            resetSimulation();
+            animate();
+
+        </script>
+    </body>
+</html>
